@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://api.example.com/api/v1',
-  socketUrl: 'https://api.example.com',
+  apiBaseUrl: 'http://localhost:3000/api/v1',
+  socketUrl: 'http://localhost:3000',
   // PUBLIC Razorpay key id only (`rzp_live_...`). Never the key secret or webhook secret.
   razorpayKeyId: '',
   // PUBLIC Firebase web-app config + Web Push VAPID public key only. The Firebase Admin service
