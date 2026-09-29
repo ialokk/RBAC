@@ -1,0 +1,194 @@
+@use '../../../../styles/tokens' as *;
+
+.auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: var(--s-4);
+  background:
+    radial-gradient(1100px 520px at 12% -10%, var(--c-primary-soft), transparent 60%),
+    var(--c-surface-2);
+}
+
+.auth__panel {
+  width: 100%;
+  max-width: 460px;
+  padding: var(--s-6) var(--s-5);
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-xl);
+  box-shadow: var(--e-3);
+
+  @include up($bp-sm) {
+    padding: var(--s-8) var(--s-6);
+  }
+}
+
+// ---------------------------------------------------------------- brand
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  margin-bottom: var(--s-6);
+}
+
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-md);
+  background: var(--c-primary);
+  color: #fff;
+  font-size: var(--f-lg);
+  font-weight: 750;
+}
+
+.brand__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+
+  strong {
+    font-size: var(--f-md);
+  }
+
+  small {
+    font-size: var(--f-xs);
+    color: var(--c-ink-3);
+  }
+}
+
+// ---------------------------------------------------------------- headings
+.auth__head {
+  margin-bottom: var(--s-5);
+
+  h1 {
+    font-size: var(--f-xl);
+    margin-bottom: var(--s-1);
+  }
+
+  p {
+    margin: 0;
+    font-size: var(--f-sm);
+  }
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+
+  + .block {
+    margin-top: var(--s-5);
+  }
+}
+
+.block__label {
+  font-size: var(--f-sm);
+  font-weight: 650;
+  color: var(--c-ink-2);
+}
+
+.field-hint {
+  margin: 0;
+}
+
+// ---------------------------------------------------------------- channel switch
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 3px;
+  background: var(--c-surface-3);
+  border-radius: var(--r-md);
+
+  button {
+    min-height: 38px;
+    border: 0;
+    border-radius: calc(var(--r-md) - 3px);
+    background: transparent;
+    color: var(--c-ink-3);
+    font: inherit;
+    font-size: var(--f-sm);
+    font-weight: 650;
+    cursor: pointer;
+    transition: background var(--t-fast), color var(--t-fast);
+  }
+
+  button:hover:not(:disabled):not(.is-active) {
+    color: var(--c-ink);
+  }
+
+  button.is-active {
+    background: var(--c-surface);
+    color: var(--c-ink);
+    box-shadow: var(--e-1);
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// ---------------------------------------------------------------- OTP input
+.input--code {
+  font-size: var(--f-xl);
+  font-weight: 650;
+  letter-spacing: 0.5em;
+  text-align: center;
+  padding-left: calc(var(--s-3) + 0.5em);
+}
+
+.verify__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+}
+
+// ---------------------------------------------------------------- alerts
+.alert {
+  margin: 0;
+  padding: var(--s-3);
+  border-radius: var(--r-md);
+  font-size: var(--f-sm);
+}
+
+.alert--error {
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+}
+
+.alert--info {
+  background: var(--c-info-soft);
+  color: var(--c-info);
+}
+
+// ---------------------------------------------------------------- role mismatch
+.mismatch {
+  text-align: center;
+
+  h1 {
+    font-size: var(--f-xl);
+    margin-bottom: var(--s-2);
+  }
+
+  p {
+    font-size: var(--f-sm);
+    margin-bottom: var(--s-5);
+  }
+}
+
+.mismatch__icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--s-4);
+  border-radius: var(--r-pill);
+  background: var(--c-warning-soft);
+  color: var(--c-warning);
+}

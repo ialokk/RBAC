@@ -1,0 +1,152 @@
+@use '../../../../styles/tokens' as *;
+
+.fc {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-4);
+}
+
+.fc.is-unavailable {
+  opacity: 0.6;
+}
+
+.fc__body {
+  flex: 1;
+  min-width: 0;
+
+  h3 {
+    margin: var(--s-1) 0 var(--s-1);
+    font-size: var(--f-base);
+  }
+}
+
+.fc__price {
+  margin: 0;
+  font-weight: 650;
+}
+
+.fc__desc {
+  margin: var(--s-2) 0 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Veg/non-veg square marker — the standard Indian FSSAI indicator.
+.fc__diet {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--c-nonveg);
+  border-radius: 3px;
+
+  span {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--r-pill);
+    background: var(--c-nonveg);
+  }
+
+  &.is-veg {
+    border-color: var(--c-veg);
+  }
+
+  &.is-veg span {
+    background: var(--c-veg);
+  }
+}
+
+.fc__media {
+  position: relative;
+  flex: 0 0 104px;
+  width: 104px;
+
+  @include up($bp-sm) {
+    flex-basis: 124px;
+    width: 124px;
+  }
+}
+
+.fc__media img,
+.fc__placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--r-md);
+  object-fit: cover;
+}
+
+.fc__placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--c-surface-3);
+  color: var(--c-ink-4);
+  font-size: var(--f-2xl);
+  font-weight: 700;
+}
+
+// Floating ADD / stepper overlaps the image bottom edge, like a real food app.
+.fc__add,
+.qty,
+.fc__badge {
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  transform: translateX(-50%);
+}
+
+.fc__add {
+  min-width: 78px;
+  font-weight: 700;
+  color: var(--c-primary-strong);
+  border-color: var(--c-primary);
+  box-shadow: var(--e-2);
+}
+
+.fc__add:hover {
+  background: var(--c-primary-soft);
+}
+
+.qty {
+  display: flex;
+  align-items: center;
+  min-width: 78px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-primary);
+  border-radius: var(--r-sm);
+  box-shadow: var(--e-2);
+  overflow: hidden;
+
+  button {
+    flex: 0 0 26px;
+    min-height: 32px;
+    border: 0;
+    background: transparent;
+    color: var(--c-primary-strong);
+    font: inherit;
+    font-size: var(--f-md);
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: var(--c-primary-soft);
+  }
+
+  span {
+    flex: 1;
+    text-align: center;
+    font-size: var(--f-sm);
+    font-weight: 700;
+    color: var(--c-primary-strong);
+  }
+}
+
+.fc__badge {
+  white-space: nowrap;
+}

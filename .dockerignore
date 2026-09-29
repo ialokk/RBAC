@@ -10,6 +10,9 @@ apps/web/playwright-report
 apps/web/test-results
 apps/api/test
 apps/api/coverage
+**/jest.config.js
+**/tsconfig.test.json
+**/*.spec.ts
 .git
 .github
 docs

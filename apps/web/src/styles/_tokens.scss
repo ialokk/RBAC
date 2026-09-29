@@ -1,0 +1,101 @@
+// Design tokens — the single source of truth for colour, spacing, type, radius and elevation.
+// Everything else in the app composes these; never hard-code a raw hex/px in a component.
+
+:root {
+  // Brand — warm amber primary reads as "food", deep charcoal for text keeps it premium.
+  --c-primary: #f2622e;
+  --c-primary-strong: #d64d1c;
+  --c-primary-soft: #fff1ea;
+  --c-accent: #10b981;
+  --c-accent-soft: #e7f8f1;
+
+  // Neutrals
+  --c-ink: #14161a;
+  --c-ink-2: #3d434d;
+  --c-ink-3: #6b7280;
+  --c-ink-4: #9aa1ac;
+  --c-line: #e8eaee;
+  --c-line-strong: #d6d9df;
+  --c-surface: #ffffff;
+  --c-surface-2: #f7f8fa;
+  --c-surface-3: #eef0f4;
+
+  // Semantic
+  --c-success: #0f9d58;
+  --c-success-soft: #e6f6ee;
+  --c-warning: #b7791f;
+  --c-warning-soft: #fdf5e4;
+  --c-danger: #d93a3a;
+  --c-danger-soft: #fdecec;
+  --c-info: #2563eb;
+  --c-info-soft: #eaf1fe;
+
+  --c-veg: #0f9d58;
+  --c-nonveg: #c0392b;
+
+  // Spacing scale (4px base)
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.25rem;
+  --s-6: 1.5rem;
+  --s-8: 2rem;
+  --s-10: 2.5rem;
+  --s-12: 3rem;
+  --s-16: 4rem;
+
+  // Radius
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-pill: 999px;
+
+  // Elevation — kept deliberately subtle; depth comes from spacing, not heavy shadows.
+  --e-1: 0 1px 2px rgba(20, 22, 26, 0.06);
+  --e-2: 0 2px 8px rgba(20, 22, 26, 0.08);
+  --e-3: 0 8px 24px rgba(20, 22, 26, 0.1);
+  --e-focus: 0 0 0 3px rgba(242, 98, 46, 0.28);
+
+  // Type scale
+  --f-xs: 0.75rem;
+  --f-sm: 0.8125rem;
+  --f-base: 0.9375rem;
+  --f-md: 1rem;
+  --f-lg: 1.125rem;
+  --f-xl: 1.375rem;
+  --f-2xl: 1.75rem;
+
+  --lh-tight: 1.25;
+  --lh-normal: 1.5;
+
+  // Layout
+  --layout-max: 1240px;
+  --header-h: 60px;
+  --sidebar-w: 248px;
+  --bottomnav-h: 60px;
+
+  --t-fast: 120ms ease;
+  --t-base: 200ms ease;
+
+  color-scheme: light;
+}
+
+// Breakpoints — used via the mixins below so the values live in exactly one place.
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+
+@mixin up($bp) {
+  @media (min-width: $bp) {
+    @content;
+  }
+}
+
+@mixin below($bp) {
+  @media (max-width: $bp - 1px) {
+    @content;
+  }
+}

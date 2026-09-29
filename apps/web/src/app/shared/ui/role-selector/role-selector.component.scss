@@ -1,0 +1,80 @@
+@use '../../../../styles/tokens' as *;
+
+.roles {
+  display: grid;
+  gap: var(--s-2);
+  grid-template-columns: 1fr;
+
+  @include up($bp-sm) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.role {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-width: 0;
+  padding: var(--s-3);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--t-fast), background var(--t-fast), box-shadow var(--t-fast);
+}
+
+.role:hover:not(:disabled) {
+  border-color: var(--c-primary);
+  background: var(--c-primary-soft);
+}
+
+.role:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.role.is-selected {
+  border-color: var(--c-primary);
+  background: var(--c-primary-soft);
+  box-shadow: inset 0 0 0 1px var(--c-primary);
+}
+
+.role__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-md);
+  background: var(--c-surface-3);
+  color: var(--c-ink-2);
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.role.is-selected .role__icon {
+  background: var(--c-primary);
+  color: #fff;
+}
+
+.role__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+
+  strong {
+    font-size: var(--f-sm);
+    font-weight: 650;
+  }
+
+  small {
+    font-size: var(--f-xs);
+    color: var(--c-ink-3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

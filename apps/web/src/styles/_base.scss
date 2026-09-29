@@ -1,0 +1,92 @@
+@use 'tokens' as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--c-surface-2);
+  color: var(--c-ink);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: var(--f-base);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  // Respect notches/rounded corners when running full-screen (PWA installed / Capacitor).
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0 0 var(--s-3);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.01em;
+  font-weight: 650;
+  color: var(--c-ink);
+}
+
+h1 {
+  font-size: var(--f-2xl);
+}
+h2 {
+  font-size: var(--f-xl);
+}
+h3 {
+  font-size: var(--f-lg);
+}
+h4 {
+  font-size: var(--f-md);
+}
+
+p {
+  margin: 0 0 var(--s-3);
+}
+
+a {
+  color: var(--c-primary-strong);
+  text-decoration: none;
+  transition: color var(--t-fast);
+}
+
+a:hover {
+  color: var(--c-primary);
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+// Visible, consistent keyboard focus everywhere — never remove without a replacement.
+:focus-visible {
+  outline: none;
+  box-shadow: var(--e-focus);
+  border-radius: var(--r-sm);
+}
+
+::placeholder {
+  color: var(--c-ink-4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

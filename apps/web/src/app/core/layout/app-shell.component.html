@@ -1,0 +1,79 @@
+<div class="shell" [class.shell--sidebar]="usesSidebar()">
+  <header class="topbar">
+    <div class="topbar__inner">
+      @if (usesSidebar()) {
+        <button type="button" class="btn btn-ghost btn-icon topbar__burger" (click)="toggleSidebar()"
+                [attr.aria-expanded]="sidebarOpen()" aria-label="Toggle navigation">
+          <app-icon [name]="sidebarOpen() ? 'close' : 'menu'" />
+        </button>
+      }
+
+      <a class="brand" [routerLink]="navItems()[0]?.path ?? '/'">
+        <span class="brand__mark" aria-hidden="true">R</span>
+        <span class="brand__text">
+          <strong>RBAC</strong>
+          <small>{{ roleLabel() }}</small>
+        </span>
+      </a>
+
+      @if (!usesSidebar()) {
+        <nav class="topnav" aria-label="Primary">
+          @for (item of navItems(); track item.path) {
+            <a class="topnav__link" [routerLink]="item.path" routerLinkActive="is-active"
+               [routerLinkActiveOptions]="{ exact: !!item.exact }">
+              <app-icon [name]="item.icon" [size]="18" />
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+      }
+
+      <div class="topbar__actions">
+        <div class="account" [title]="user()?.mobile ?? user()?.email ?? ''">
+          <span class="account__avatar" aria-hidden="true">{{ initials() }}</span>
+          <span class="account__meta">
+            <strong>{{ user()?.name || 'Signed in' }}</strong>
+            <small>{{ roleLabel() }}</small>
+          </span>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm logout" (click)="logout()" [disabled]="loggingOut()">
+          <app-icon name="logout" [size]="16" />
+          <span class="logout__text">{{ loggingOut() ? 'Signing out…' : 'Log out' }}</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="shell__body">
+    @if (usesSidebar()) {
+      <div class="scrim" [class.is-visible]="sidebarOpen()" (click)="closeSidebar()"></div>
+      <aside class="sidebar" [class.is-open]="sidebarOpen()" aria-label="Sections">
+        <nav class="sidebar__nav">
+          @for (item of navItems(); track item.path) {
+            <a class="sidebar__link" [routerLink]="item.path" routerLinkActive="is-active"
+               [routerLinkActiveOptions]="{ exact: !!item.exact }" (click)="closeSidebar()">
+              <app-icon [name]="item.icon" [size]="18" />
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+      </aside>
+    }
+
+    <main class="content" [class.content--padded-bottom]="!usesSidebar()">
+      <router-outlet />
+    </main>
+  </div>
+
+  @if (!usesSidebar()) {
+    <nav class="bottomnav" aria-label="Primary">
+      @for (item of bottomNavItems(); track item.path) {
+        <a class="bottomnav__link" [routerLink]="item.path" routerLinkActive="is-active"
+           [routerLinkActiveOptions]="{ exact: !!item.exact }">
+          <app-icon [name]="item.icon" [size]="20" />
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+  }
+</div>

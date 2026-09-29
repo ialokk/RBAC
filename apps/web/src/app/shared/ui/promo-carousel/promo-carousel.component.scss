@@ -1,0 +1,120 @@
+@use '../../../../styles/tokens' as *;
+
+.pc {
+  position: relative;
+}
+
+.pc__track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  border-radius: var(--r-lg);
+}
+
+.pc__track::-webkit-scrollbar {
+  display: none;
+}
+
+.pc__slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--s-1);
+  min-height: 132px;
+  padding: var(--s-5) var(--s-6);
+  color: var(--c-ink);
+  text-decoration: none;
+
+  @include up($bp-md) {
+    min-height: 156px;
+  }
+
+  strong {
+    font-size: var(--f-lg);
+    letter-spacing: -0.01em;
+
+    @include up($bp-md) {
+      font-size: var(--f-xl);
+    }
+  }
+}
+
+.pc__slide:hover {
+  text-decoration: none;
+}
+
+.pc__sub {
+  font-size: var(--f-sm);
+  color: var(--c-ink-2);
+  max-width: 44ch;
+}
+
+.pc__badge {
+  align-self: flex-start;
+  margin-bottom: var(--s-1);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--c-ink-2);
+}
+
+.pc__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: none;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--c-ink-2);
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: var(--e-2);
+  transition: background var(--t-fast);
+
+  @include up($bp-md) {
+    display: grid;
+  }
+}
+
+.pc__nav:hover {
+  background: #fff;
+}
+
+.pc__nav--prev {
+  left: var(--s-3);
+}
+.pc__nav--next {
+  right: var(--s-3);
+}
+
+.pc__dots {
+  position: absolute;
+  left: 50%;
+  bottom: var(--s-3);
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--s-1);
+}
+
+.pc__dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: rgba(20, 22, 26, 0.24);
+  cursor: pointer;
+  transition: width var(--t-base), background var(--t-base);
+}
+
+.pc__dot.is-active {
+  width: 18px;
+  background: var(--c-ink-2);
+}

@@ -1,0 +1,221 @@
+@use '../../../../styles/tokens' as *;
+
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+}
+
+.section {
+  min-width: 0;
+}
+
+// ---------------------------------------------------------------- hero
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+
+  @include up($bp-md) {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.loc {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-width: 0;
+  padding: var(--s-2) var(--s-3);
+  border: 1px solid transparent;
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--c-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--t-fast);
+
+  @include up($bp-md) {
+    flex: 0 0 auto;
+    max-width: 320px;
+  }
+}
+
+.loc:hover:not(:disabled) {
+  background: var(--c-surface-3);
+}
+
+.loc__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+
+  small {
+    font-size: var(--f-xs);
+    color: var(--c-ink-3);
+  }
+
+  strong {
+    font-size: var(--f-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.searchbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex: 1;
+  min-height: 46px;
+  padding: 0 var(--s-4);
+  border: 1px solid var(--c-line-strong);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: var(--c-ink-4);
+  font: inherit;
+  font-size: var(--f-sm);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+
+.searchbar:hover {
+  border-color: var(--c-primary);
+  box-shadow: var(--e-1);
+}
+
+// ---------------------------------------------------------------- categories
+.cats {
+  gap: var(--s-4);
+}
+
+.cat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  width: 76px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--c-ink-2);
+  font: inherit;
+  font-size: var(--f-xs);
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+
+.cat__art {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--r-pill);
+  font-size: 1.5rem;
+  border: 2px solid transparent;
+  transition: border-color var(--t-fast), transform var(--t-fast);
+}
+
+.cat:hover .cat__art {
+  transform: translateY(-2px);
+}
+
+.cat.is-active {
+  color: var(--c-primary-strong);
+}
+
+.cat.is-active .cat__art {
+  border-color: var(--c-primary);
+}
+
+// ---------------------------------------------------------------- rails
+.rail app-restaurant-card {
+  display: block;
+  width: 240px;
+}
+
+.recent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-1);
+  width: 190px;
+  padding: var(--s-3);
+  color: inherit;
+  text-decoration: none;
+
+  strong {
+    font-size: var(--f-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+}
+
+.recent:hover {
+  text-decoration: none;
+}
+
+// ---------------------------------------------------------------- sticky cart bar
+.cartbar {
+  position: fixed;
+  left: var(--s-4);
+  right: var(--s-4);
+  bottom: calc(var(--bottomnav-h) + var(--s-3) + env(safe-area-inset-bottom));
+  z-index: 46;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  max-width: 560px;
+  margin-inline: auto;
+  padding: var(--s-3) var(--s-4);
+  border-radius: var(--r-lg);
+  background: var(--c-ink);
+  color: #fff;
+  text-decoration: none;
+  box-shadow: var(--e-3);
+
+  @include up($bp-lg) {
+    bottom: var(--s-5);
+  }
+}
+
+.cartbar:hover {
+  text-decoration: none;
+  color: #fff;
+}
+
+.cartbar__count {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-pill);
+  background: var(--c-primary);
+  font-size: var(--f-sm);
+  font-weight: 700;
+}
+
+.cartbar__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+
+  small {
+    font-size: var(--f-xs);
+    opacity: 0.75;
+  }
+}
+
+.cartbar__cta {
+  margin-left: auto;
+  font-size: var(--f-sm);
+  font-weight: 650;
+}
