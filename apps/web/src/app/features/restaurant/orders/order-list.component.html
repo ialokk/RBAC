@@ -1,79 +1,136 @@
-<section class="restaurant-orders">
-  <h1>{{ isHistory ? 'Order History' : 'Orders' }}</h1>
+<section class="oq">
+  <div class="section-head">
+    <h1>{{ isHistory ? 'Order history' : 'Order queue' }}</h1>
+    @if (!loading() && orders().length) {
+      <span class="text-sm text-muted">{{ orders().length }} order{{ orders().length === 1 ? '' : 's' }}</span>
+    }
+  </div>
 
   @if (!isHistory) {
-    <nav class="status-tabs">
+    <div class="scroll-x oq__tabs">
       @for (tab of tabs; track tab.status) {
-        <button type="button" [class.active]="activeStatus() === tab.status" (click)="selectTab(tab.status)">
+        <button type="button" class="chip" [class.is-active]="activeStatus() === tab.status" (click)="selectTab(tab.status)">
           {{ tab.label }}
         </button>
       }
-    </nav>
+    </div>
   }
 
   @if (loading()) {
-    <app-loading-spinner />
+    <div class="oq__list">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="skeleton oq__sk"></div>
+      }
+    </div>
+  } @else if (loadError()) {
+    <app-empty-state
+      icon="close"
+      tone="error"
+      title="Couldn't load orders"
+      message="We couldn't reach the server. Please try again."
+      actionLabel="Retry"
+      (action)="load()"
+    />
+  } @else if (!orders().length) {
+    <app-empty-state
+      icon="receipt"
+      [title]="isHistory ? 'No past orders yet' : 'Nothing in this queue'"
+      [message]="isHistory ? 'Completed and cancelled orders will be listed here.' : 'New orders appear here automatically — no need to refresh.'"
+    />
   } @else {
-    <ul class="order-list">
+    <ul class="oq__list">
       @for (order of orders(); track order._id) {
-        <li>
-          <header>
-            <span>{{ order.createdAt | date: 'short' }}</span>
-            <strong>{{ order.status }}</strong>
-            <span>₹{{ order.pricing.grandTotal / 100 }}</span>
+        <li class="ocard card" [class.is-busy]="busyOrderId() === order._id">
+          <header class="ocard__head">
+            <app-status-badge [label]="statusLabel(order.status)" [tone]="statusTone(order.status)" />
+            <span class="text-xs text-muted">{{ order.createdAt | date: 'MMM d, h:mm a' }}</span>
+            <strong class="ocard__total">{{ order.pricing.grandTotal | money }}</strong>
           </header>
 
-          <ul class="order-items">
+          <ul class="ocard__items">
             @for (item of order.items; track item.menuItemId) {
-              <li>{{ item.qty }} × {{ item.nameSnapshot }}</li>
+              <li>
+                <span class="ocard__qty">{{ item.qty }}×</span>
+                <span>{{ item.nameSnapshot }}</span>
+                @if (item.instructions) {
+                  <em class="text-xs text-muted">“{{ item.instructions }}”</em>
+                }
+              </li>
             }
           </ul>
 
+          <div class="ocard__meta text-xs text-muted">
+            <span>{{ itemCount(order) }} item{{ itemCount(order) === 1 ? '' : 's' }}</span>
+            <span aria-hidden="true">·</span>
+            <span>{{ order.paymentMethod }}</span>
+            <span aria-hidden="true">·</span>
+            <span>{{ order.deliveryAddressSnapshot.city }}</span>
+            @if (order.prepTimeMinutes) {
+              <span aria-hidden="true">·</span>
+              <span>{{ order.prepTimeMinutes }} min prep</span>
+            }
+          </div>
+
           @if (!isHistory) {
-            @if (order.status === 'RESTAURANT_PENDING') {
-              <div class="actions">
-                <button type="button" (click)="accept(order)">Accept</button>
+            @switch (order.status) {
+              @case ('RESTAURANT_PENDING') {
                 @if (rejectingOrderId() === order._id) {
-                  <input
-                    type="text"
-                    placeholder="Rejection reason"
-                    [value]="rejectReason()"
-                    (input)="rejectReason.set($any($event.target).value)"
-                  />
-                  <button type="button" (click)="confirmReject(order)">Confirm reject</button>
-                  <button type="button" (click)="cancelReject()">Cancel</button>
+                  <div class="ocard__actions ocard__actions--reject">
+                    <input
+                      class="input"
+                      type="text"
+                      placeholder="Reason for rejecting (required)"
+                      aria-label="Rejection reason"
+                      [value]="rejectReason()"
+                      (input)="rejectReason.set($any($event.target).value)"
+                    />
+                    <button type="button" class="btn btn-danger btn-sm"
+                            [disabled]="!rejectReason().trim() || busyOrderId() === order._id"
+                            (click)="confirmReject(order)">Confirm reject</button>
+                    <button type="button" class="btn btn-ghost btn-sm" (click)="cancelReject()">Cancel</button>
+                  </div>
                 } @else {
-                  <button type="button" (click)="startReject(order._id)">Reject</button>
+                  <div class="ocard__actions">
+                    <button type="button" class="btn btn-sm" [disabled]="busyOrderId() === order._id" (click)="accept(order)">
+                      Accept order
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" (click)="startReject(order._id)">Reject</button>
+                  </div>
                 }
-              </div>
-            }
-
-            @if (order.status === 'RESTAURANT_ACCEPTED') {
-              <div class="actions">
-                <input
-                  type="number"
-                  [value]="prepTimeFor(order._id)"
-                  (input)="setPrepTimeValue(order._id, +$any($event.target).value)"
-                />
-                <button type="button" (click)="submitPrepTime(order)">Set prep time</button>
-                <button type="button" (click)="markPreparing(order)">Start preparing</button>
-              </div>
-            }
-
-            @if (order.status === 'PREPARING') {
-              <div class="actions">
-                <span>Prep time: {{ order.prepTimeMinutes ?? '—' }} min</span>
-                <button type="button" (click)="markReady(order)">Mark ready</button>
-              </div>
-            }
-
-            @if (order.status === 'READY_FOR_PICKUP') {
-              <p>Awaiting delivery pickup.</p>
+              }
+              @case ('RESTAURANT_ACCEPTED') {
+                <div class="ocard__actions">
+                  <label class="preptime">
+                    <span class="text-xs text-muted">Prep time</span>
+                    <input
+                      class="input"
+                      type="number"
+                      min="1"
+                      aria-label="Preparation time in minutes"
+                      [value]="prepTimeFor(order._id)"
+                      (input)="setPrepTimeValue(order._id, +$any($event.target).value)"
+                    />
+                    <span class="text-xs text-muted">min</span>
+                  </label>
+                  <button type="button" class="btn btn-secondary btn-sm" [disabled]="busyOrderId() === order._id"
+                          (click)="submitPrepTime(order)">Save</button>
+                  <button type="button" class="btn btn-sm" [disabled]="busyOrderId() === order._id"
+                          (click)="markPreparing(order)">Start preparing</button>
+                </div>
+              }
+              @case ('PREPARING') {
+                <div class="ocard__actions">
+                  <button type="button" class="btn btn-sm" [disabled]="busyOrderId() === order._id" (click)="markReady(order)">
+                    Mark ready for pickup
+                  </button>
+                </div>
+              }
+              @case ('READY_FOR_PICKUP') {
+                <p class="ocard__note text-sm text-muted">Waiting for a delivery partner to pick this up.</p>
+              }
             }
           }
         </li>
-      } @empty {
-        <p>No orders here.</p>
       }
     </ul>
   }

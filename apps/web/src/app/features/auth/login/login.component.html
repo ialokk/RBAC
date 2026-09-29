@@ -1,36 +1,134 @@
-<section class="login">
-  <h1>Sign in</h1>
-
-  @if (step() === 'request') {
-    <div class="channel-toggle">
-      <button type="button" [class.active]="channel() === 'SMS'" (click)="setChannel('SMS')">Mobile OTP</button>
-      <button type="button" [class.active]="channel() === 'EMAIL'" (click)="setChannel('EMAIL')">Email OTP</button>
+<div class="auth">
+  <section class="auth__panel">
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true">R</span>
+      <div class="brand__text">
+        <strong>RBAC</strong>
+        <small>Food Delivery</small>
+      </div>
     </div>
 
-    <form [formGroup]="requestForm" (ngSubmit)="submitRequest()">
-      <label for="target">{{ channel() === 'SMS' ? 'Mobile number' : 'Email address' }}</label>
-      <input
-        id="target"
-        formControlName="target"
-        [type]="channel() === 'SMS' ? 'tel' : 'email'"
-        [placeholder]="channel() === 'SMS' ? '+91XXXXXXXXXX' : 'you@example.com'"
-      />
-      <button type="submit" [disabled]="requestForm.invalid || loading()">Send OTP</button>
-    </form>
-  } @else {
-    <form [formGroup]="verifyForm" (ngSubmit)="submitVerify()">
-      <label for="code">Enter the 6-digit code</label>
-      <input id="code" formControlName="code" type="text" inputmode="numeric" maxlength="6" placeholder="123456" />
-      <button type="submit" [disabled]="verifyForm.invalid || loading()">Verify &amp; continue</button>
-      <button type="button" class="link" (click)="backToRequest()">Use a different number/email</button>
-    </form>
-  }
+    @if (step() === 'mismatch') {
+      <div class="mismatch" role="status" aria-live="polite">
+        <span class="mismatch__icon" aria-hidden="true"><app-icon name="shield" [size]="22" /></span>
+        <h1>Signed in as {{ actualRoleTitle() }}</h1>
+        <p class="text-muted">
+          You chose <strong>{{ selectedRoleTitle() }}</strong>, but this account is registered as
+          <strong>{{ actualRoleTitle() }}</strong>. We're taking you to your {{ actualRoleTitle() }} workspace.
+        </p>
+        <button type="button" class="btn btn-block" (click)="goToActualHome()">
+          Continue as {{ actualRoleTitle() }}
+        </button>
+      </div>
+    } @else {
+      <header class="auth__head">
+        <h1>{{ step() === 'request' ? 'Sign in' : 'Verify your code' }}</h1>
+        <p class="text-muted">
+          {{
+            step() === 'request'
+              ? 'One account, one login — we’ll take you to the right place.'
+              : 'Enter the 6-digit code we just sent you.'
+          }}
+        </p>
+      </header>
 
-  @if (loading()) {
-    <app-loading-spinner />
-  }
+      @if (step() === 'request') {
+        <div class="block">
+          <span class="block__label">I'm signing in as</span>
+          <app-role-selector
+            [selected]="selectedRole()"
+            [disabled]="loading()"
+            (selectedChange)="selectRole($event)"
+          />
+          <p class="field-hint">
+            This just personalises your experience — access is always decided by your account.
+          </p>
+        </div>
 
-  @if (errorMessage()) {
-    <p class="error" role="alert">{{ errorMessage() }}</p>
-  }
-</section>
+        <form class="block" [formGroup]="requestForm" (ngSubmit)="submitRequest()" novalidate>
+          <div class="segmented" role="group" aria-label="Verification method">
+            <button type="button" [class.is-active]="!isEmail()" [disabled]="loading()" (click)="setChannel('SMS')">
+              Mobile
+            </button>
+            <button type="button" [class.is-active]="isEmail()" [disabled]="loading()" (click)="setChannel('EMAIL')">
+              Email
+            </button>
+          </div>
+
+          <div class="field">
+            <label class="label" for="target">{{ targetLabel() }}</label>
+            <input
+              id="target"
+              class="input"
+              [class.is-invalid]="!!targetError()"
+              formControlName="target"
+              [type]="isEmail() ? 'email' : 'tel'"
+              [attr.inputmode]="isEmail() ? 'email' : 'tel'"
+              [placeholder]="isEmail() ? 'you@example.com' : '+91 98765 43210'"
+              [attr.autocomplete]="isEmail() ? 'email' : 'tel'"
+              [attr.aria-invalid]="!!targetError()"
+            />
+            @if (targetError(); as error) {
+              <span class="field-error">{{ error }}</span>
+            }
+          </div>
+
+          @if (errorMessage(); as error) {
+            <p class="alert alert--error" role="alert">{{ error }}</p>
+          }
+
+          <button type="submit" class="btn btn-block" [disabled]="loading()">
+            {{ loading() ? 'Sending code…' : 'Send code' }}
+          </button>
+        </form>
+      } @else {
+        <form class="block" [formGroup]="verifyForm" (ngSubmit)="submitVerify()" novalidate>
+          @if (infoMessage(); as info) {
+            <p class="alert alert--info" role="status">{{ info }}</p>
+          }
+
+          <div class="field">
+            <label class="label" for="code">6-digit code</label>
+            <input
+              id="code"
+              class="input input--code"
+              [class.is-invalid]="!!codeError()"
+              formControlName="code"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="6"
+              placeholder="000000"
+              [attr.aria-invalid]="!!codeError()"
+            />
+            @if (codeError(); as error) {
+              <span class="field-error">{{ error }}</span>
+            }
+          </div>
+
+          @if (errorMessage(); as error) {
+            <p class="alert alert--error" role="alert">{{ error }}</p>
+          }
+
+          <button type="submit" class="btn btn-block" [disabled]="loading()">
+            {{ loading() ? 'Verifying…' : 'Verify & continue' }}
+          </button>
+
+          <div class="verify__actions">
+            <button type="button" class="btn btn-ghost btn-sm" (click)="backToRequest()" [disabled]="loading()">
+              Change details
+            </button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm"
+              (click)="resendOtp()"
+              [disabled]="loading() || resendIn() > 0"
+            >
+              {{ resendIn() > 0 ? 'Resend in ' + resendIn() + 's' : 'Resend code' }}
+            </button>
+          </div>
+        </form>
+      }
+    }
+  </section>
+</div>

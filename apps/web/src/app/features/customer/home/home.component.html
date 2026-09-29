@@ -1,37 +1,135 @@
-<section class="home">
-  <header class="location-bar">
-    <span>{{ locationLabel() }}</span>
-    <button type="button" (click)="useCurrentLocation()" [disabled]="locating()">
-      {{ locating() ? 'Locating…' : 'Use current location' }}
+<div class="home">
+  <!-- location + search -->
+  <header class="hero">
+    <button type="button" class="loc" (click)="useCurrentLocation()" [disabled]="locating()">
+      <app-icon name="pin" [size]="18" />
+      <span class="loc__text">
+        <small>Deliver to</small>
+        <strong>{{ locating() ? 'Finding you…' : locationLabel() }}</strong>
+      </span>
+    </button>
+
+    <button type="button" class="searchbar" (click)="goToSearch()">
+      <app-icon name="search" [size]="18" />
+      <span>Search for restaurants or dishes…</span>
     </button>
   </header>
 
-  <a routerLink="/customer/search" class="search-link">Search restaurants or food…</a>
-
-  <nav class="categories">
-    @for (category of categories; track category) {
-      <button type="button" (click)="loadRestaurants(category)">{{ category }}</button>
-    }
-    <button type="button" (click)="loadRestaurants()">All</button>
-  </nav>
-
-  <h2>Restaurants near you</h2>
-
-  @if (loading()) {
-    <app-loading-spinner />
-  } @else {
-    <ul class="restaurant-grid">
-      @for (restaurant of restaurants(); track restaurant._id) {
-        <li>
-          <a [routerLink]="['/customer/restaurants', restaurant._id]">
-            <strong>{{ restaurant.name }}</strong>
-            <span>{{ restaurant.cuisines.join(', ') }}</span>
-            <span>★ {{ restaurant.rating.avg }} ({{ restaurant.rating.count }})</span>
-          </a>
-        </li>
-      } @empty {
-        <p>No restaurants found yet.</p>
+  <!-- categories -->
+  <section class="section" aria-labelledby="cat-h">
+    <h2 id="cat-h" class="sr-only">Browse by cuisine</h2>
+    <div class="scroll-x cats">
+      <button type="button" class="cat" [class.is-active]="activeCuisine() === null" (click)="loadRestaurants(null)">
+        <span class="cat__art" style="background:#eef0f4">🍽️</span>
+        <span>All</span>
+      </button>
+      @for (category of categories; track category.name) {
+        <button
+          type="button"
+          class="cat"
+          [class.is-active]="activeCuisine() === category.name"
+          (click)="loadRestaurants(category.name)"
+        >
+          <span class="cat__art" [style.background]="category.tint">{{ category.icon }}</span>
+          <span>{{ category.name }}</span>
+        </button>
       }
-    </ul>
+    </div>
+  </section>
+
+  <!-- offers -->
+  <section class="section">
+    <app-promo-carousel [slides]="slides()" label="Offers for you" />
+  </section>
+
+  <!-- recently ordered -->
+  @if (recentOrders().length) {
+    <section class="section" aria-labelledby="recent-h">
+      <div class="section-head">
+        <h2 id="recent-h">Order again</h2>
+        <a routerLink="/customer/orders" class="text-sm">View all</a>
+      </div>
+      <div class="scroll-x">
+        @for (order of recentOrders(); track order._id) {
+          <a class="recent card card-interactive" [routerLink]="['/customer/orders', order._id]">
+            <span class="badge">{{ statusLabel(order.status) }}</span>
+            <strong>{{ order.items[0]?.nameSnapshot || 'Order' }}</strong>
+            <span class="text-xs text-muted">
+              {{ order.items.length }} item{{ order.items.length === 1 ? '' : 's' }} ·
+              {{ order.pricing.grandTotal | money }}
+            </span>
+          </a>
+        }
+      </div>
+    </section>
   }
-</section>
+
+  <!-- recommended -->
+  @if (!loading() && recommended().length) {
+    <section class="section" aria-labelledby="rec-h">
+      <div class="section-head">
+        <h2 id="rec-h">Top rated near you</h2>
+      </div>
+      <div class="scroll-x rail">
+        @for (restaurant of recommended(); track restaurant._id) {
+          <app-restaurant-card [restaurant]="restaurant" />
+        }
+      </div>
+    </section>
+  }
+
+  <!-- all restaurants -->
+  <section class="section" aria-labelledby="all-h">
+    <div class="section-head">
+      <h2 id="all-h">
+        {{ activeCuisine() ? activeCuisine() + ' restaurants' : 'All restaurants' }}
+      </h2>
+      @if (!loading() && restaurants().length) {
+        <span class="text-sm text-muted">{{ openRestaurants().length }} open now</span>
+      }
+    </div>
+
+    @if (loading()) {
+      <app-skeleton-cards [count]="6" />
+    } @else if (loadError()) {
+      <app-empty-state
+        icon="close"
+        tone="error"
+        title="We couldn't load restaurants"
+        message="Something went wrong on our side. Please check your connection and try again."
+        actionLabel="Retry"
+        (action)="loadRestaurants(activeCuisine())"
+      />
+    } @else if (!restaurants().length) {
+      <app-empty-state
+        icon="search"
+        title="No restaurants here yet"
+        [message]="
+          activeCuisine()
+            ? 'We could not find any ' + activeCuisine() + ' places. Try another cuisine.'
+            : 'No restaurants are available in your area right now.'
+        "
+        actionLabel="Show all cuisines"
+        (action)="loadRestaurants(null)"
+      />
+    } @else {
+      <div class="grid-auto">
+        @for (restaurant of restaurants(); track restaurant._id) {
+          <app-restaurant-card [restaurant]="restaurant" />
+        }
+      </div>
+    }
+  </section>
+</div>
+
+<!-- sticky cart summary -->
+@if (cartCount() > 0) {
+  <a class="cartbar" routerLink="/customer/cart">
+    <span class="cartbar__count">{{ cartCount() }}</span>
+    <span class="cartbar__text">
+      <strong>{{ cartTotal() | money }}</strong>
+      <small>{{ cartCount() }} item{{ cartCount() === 1 ? '' : 's' }} in cart</small>
+    </span>
+    <span class="cartbar__cta">View cart →</span>
+  </a>
+}

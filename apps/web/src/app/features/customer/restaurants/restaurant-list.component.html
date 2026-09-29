@@ -1,25 +1,33 @@
-<section class="restaurant-list">
-  <h1>Restaurants</h1>
+<section class="stack">
+  <div class="section-head">
+    <h1>All restaurants</h1>
+    @if (!loading() && total()) {
+      <span class="text-sm text-muted">{{ total() }} total</span>
+    }
+  </div>
 
   @if (loading()) {
-    <app-loading-spinner />
+    <app-skeleton-cards [count]="8" />
+  } @else if (loadError()) {
+    <app-empty-state
+      icon="close"
+      tone="error"
+      title="We couldn't load restaurants"
+      message="Please check your connection and try again."
+      actionLabel="Retry"
+      (action)="load()"
+    />
+  } @else if (!restaurants().length) {
+    <app-empty-state icon="store" title="No restaurants yet" message="Check back soon — new kitchens are added regularly." />
   } @else {
-    <ul>
+    <div class="grid-auto">
       @for (restaurant of restaurants(); track restaurant._id) {
-        <li>
-          <a [routerLink]="['/customer/restaurants', restaurant._id]">
-            <strong>{{ restaurant.name }}</strong>
-            <span>{{ restaurant.cuisines.join(', ') }}</span>
-            <span>{{ restaurant.isOpen ? 'Open' : 'Closed' }}</span>
-          </a>
-        </li>
-      } @empty {
-        <p>No restaurants available yet.</p>
+        <app-restaurant-card [restaurant]="restaurant" />
       }
-    </ul>
+    </div>
 
-    @if (restaurants().length < total()) {
-      <button type="button" (click)="nextPage()">Load more</button>
+    @if (hasMore()) {
+      <button type="button" class="btn btn-secondary" (click)="nextPage()">Load more</button>
     }
   }
 </section>

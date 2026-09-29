@@ -1,32 +1,79 @@
-<section class="search">
-  <input
-    type="search"
-    placeholder="Search restaurants or food…"
-    [value]="query()"
-    (input)="onQueryChange($any($event.target).value)"
-  />
+<section class="stack">
+  <h1>Search</h1>
+
+  <div class="searchfield">
+    <app-icon name="search" [size]="18" />
+    <input
+      class="searchfield__input"
+      type="search"
+      placeholder="Search restaurants or dishes…"
+      aria-label="Search restaurants or dishes"
+      [value]="query()"
+      (input)="onQueryChange($any($event.target).value)"
+    />
+    @if (query()) {
+      <button type="button" class="searchfield__clear" (click)="clear()" aria-label="Clear search">
+        <app-icon name="close" [size]="16" />
+      </button>
+    }
+  </div>
 
   @if (loading()) {
-    <p>Searching…</p>
-  }
+    <app-skeleton-cards [count]="4" />
+  } @else if (loadError()) {
+    <app-empty-state
+      icon="close"
+      tone="error"
+      title="Search failed"
+      message="We couldn't reach search right now. Please try again."
+    />
+  } @else if (!query() || query().length < 2) {
+    <app-empty-state
+      icon="search"
+      title="What are you craving?"
+      message="Type at least two characters to search across restaurants and dishes."
+    />
+  } @else if (searched() && !hasResults()) {
+    <app-empty-state
+      icon="search"
+      title="No matches for “{{ query() }}”"
+      message="Try a different dish, cuisine or restaurant name."
+      actionLabel="Clear search"
+      (action)="clear()"
+    />
+  } @else {
+    @if (restaurantResults().length) {
+      <div>
+        <div class="section-head"><h2>Restaurants</h2></div>
+        <div class="grid-auto">
+          @for (restaurant of restaurantResults(); track restaurant._id) {
+            <app-restaurant-card [restaurant]="restaurant" />
+          }
+        </div>
+      </div>
+    }
 
-  @if (restaurantResults().length > 0) {
-    <h2>Restaurants</h2>
-    <ul>
-      @for (restaurant of restaurantResults(); track restaurant._id) {
-        <li><a [routerLink]="['/customer/restaurants', restaurant._id]">{{ restaurant.name }}</a></li>
-      }
-    </ul>
-  }
-
-  @if (foodResults().length > 0) {
-    <h2>Food</h2>
-    <ul>
-      @for (item of foodResults(); track item._id) {
-        <li>
-          <a [routerLink]="['/customer/restaurants', item.restaurantId, 'items', item._id]">{{ item.name }}</a>
-        </li>
-      }
-    </ul>
+    @if (foodResults().length) {
+      <div>
+        <div class="section-head"><h2>Dishes</h2></div>
+        <ul class="dishes">
+          @for (item of foodResults(); track item._id) {
+            <li>
+              <a class="dish card card-interactive" [routerLink]="['/customer/restaurants', item.restaurantId, 'items', item._id]">
+                <span class="dish__diet" [class.is-veg]="item.isVeg"
+                      [attr.aria-label]="item.isVeg ? 'Vegetarian' : 'Non-vegetarian'"><span></span></span>
+                <span class="dish__text">
+                  <strong>{{ item.name }}</strong>
+                  @if (item.description) {
+                    <small class="text-muted">{{ item.description }}</small>
+                  }
+                </span>
+                <span class="dish__price">{{ item.price | money }}</span>
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
   }
 </section>
