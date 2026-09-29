@@ -1,0 +1,89 @@
+@if (loading()) {
+  <p>Loading…</p>
+} @else {
+  <section class="menu-management">
+    <h1>Menu Management</h1>
+
+    <section class="categories">
+      <h2>Categories</h2>
+      <ul>
+        @for (category of categories(); track category._id) {
+          <li>{{ category.name }} <button type="button" (click)="deleteCategory(category._id)">Delete</button></li>
+        } @empty {
+          <p>No categories yet.</p>
+        }
+      </ul>
+      <form [formGroup]="categoryForm" (ngSubmit)="addCategory()">
+        <input formControlName="name" placeholder="Category name" />
+        <button type="submit" [disabled]="categoryForm.invalid">Add category</button>
+      </form>
+    </section>
+
+    <section class="items">
+      <h2>Food Items</h2>
+      <ul>
+        @for (item of items(); track item._id) {
+          <li>
+            <span [class.veg]="item.isVeg">{{ item.isVeg ? '🟢' : '🔴' }}</span>
+            <strong>{{ item.name }}</strong>
+            <span>{{ categoryName(item.categoryId) }}</span>
+            <span>₹{{ item.price / 100 }}</span>
+            <button type="button" (click)="toggleAvailability(item)">
+              {{ item.isAvailable ? 'Mark unavailable' : 'Mark available' }}
+            </button>
+            <button type="button" (click)="deleteItem(item._id)">Delete</button>
+          </li>
+        } @empty {
+          <p>No food items yet.</p>
+        }
+      </ul>
+
+      <form [formGroup]="itemForm" (ngSubmit)="addItem()">
+        <label>
+          Category
+          <select formControlName="categoryId">
+            <option value="" disabled>Select category</option>
+            @for (category of categories(); track category._id) {
+              <option [value]="category._id">{{ category.name }}</option>
+            }
+          </select>
+        </label>
+        <label>Name <input formControlName="name" /></label>
+        <label>Description <textarea formControlName="description"></textarea></label>
+        <label>Price (₹) <input type="number" formControlName="price" /></label>
+        <label>Image URL <input formControlName="imageUrl" placeholder="https://…" /></label>
+        <label><input type="checkbox" formControlName="isVeg" /> Vegetarian</label>
+        <label><input type="checkbox" formControlName="isAvailable" /> Available</label>
+        <label>Prep time (minutes) <input type="number" formControlName="prepTimeMinutes" /></label>
+        <button type="submit" [disabled]="itemForm.invalid">Add food item</button>
+      </form>
+    </section>
+
+    <section class="addons">
+      <h2>Add-on Groups</h2>
+      <ul>
+        @for (group of addonGroups(); track group._id) {
+          <li>
+            <strong>{{ group.groupName }}</strong> (max {{ group.maxSelectable }})
+            <ul>
+              @for (option of group.options; track option.name) {
+                <li>{{ option.name }} (+₹{{ option.price / 100 }})</li>
+              }
+            </ul>
+            <button type="button" (click)="deleteAddonGroup(group._id)">Delete group</button>
+          </li>
+        } @empty {
+          <p>No add-on groups yet.</p>
+        }
+      </ul>
+
+      <form [formGroup]="addonForm" (ngSubmit)="addAddonGroup()">
+        <label>Group name <input formControlName="groupName" placeholder="Extra Toppings" /></label>
+        <label>First option name <input formControlName="optionName" /></label>
+        <label>Option price (₹) <input type="number" formControlName="optionPrice" /></label>
+        <label>Max selectable <input type="number" formControlName="maxSelectable" /></label>
+        <button type="submit" [disabled]="addonForm.invalid">Add group</button>
+      </form>
+    </section>
+  </section>
+}

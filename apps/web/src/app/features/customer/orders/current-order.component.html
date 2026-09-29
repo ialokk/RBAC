@@ -1,0 +1,31 @@
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (order(); as o) {
+  <section class="current-order">
+    <h1>Current Order</h1>
+    <p>Status: <strong>{{ statusLabel(o.status) }}</strong></p>
+
+    <ol class="status-timeline">
+      @for (entry of o.statusHistory; track entry.at) {
+        <li>{{ statusLabel(entry.status) }} — {{ entry.at | date: 'short' }}</li>
+      }
+    </ol>
+
+    <div class="tracking-map-placeholder">
+      @if (mapUrl(); as url) {
+        <p>Your delivery partner's last known location:</p>
+        <a [href]="url" target="_blank" rel="noopener">Open in Google Maps</a>
+      } @else {
+        <p>Live location will appear here once a delivery partner is on the way.</p>
+      }
+    </div>
+
+    <a [routerLink]="['/customer/orders', o._id]">View order details</a>
+  </section>
+} @else {
+  <section class="current-order">
+    <h1>Current Order</h1>
+    <p>You have no active order right now.</p>
+    <a routerLink="/customer/home">Browse restaurants</a>
+  </section>
+}

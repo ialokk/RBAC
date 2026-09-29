@@ -1,0 +1,25 @@
+{
+  "name": "rbac-food-delivery",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Monorepo for the food delivery platform (Angular + Node.js/Express + MongoDB, Version 1 modular monolith)",
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
+  "scripts": {
+    "build:libs": "npm run build --workspace libs/shared-types && npm run build --workspace libs/shared-utils && npm run build --workspace libs/shared-validation",
+    "build:api": "npm run build --workspace apps/api",
+    "build:web": "npm run build --workspace apps/web",
+    "build": "npm run build:libs && npm run build:api && npm run build:web",
+    "dev:api": "npm run dev --workspace apps/api",
+    "dev:web": "npm run start --workspace apps/web",
+    "test:api": "npm run test --workspace apps/api",
+    "test:web": "npm run test --workspace apps/web",
+    "test": "npm run test:api && npm run test:web",
+    "seed:dev": "npm run seed:dev --workspace apps/api"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

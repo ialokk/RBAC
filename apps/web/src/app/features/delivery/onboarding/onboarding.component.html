@@ -1,0 +1,77 @@
+@if (loading()) {
+  <p>Loading…</p>
+} @else if (application(); as app) {
+  <section class="onboarding-status">
+    <h1>Delivery Partner Onboarding</h1>
+
+    @if (app.status === 'PENDING') {
+      <p class="badge pending">Pending admin approval</p>
+      <p>Your application is under review. You'll get access to the dashboard once an admin approves it.</p>
+    } @else if (app.status === 'REJECTED') {
+      <p class="badge rejected">Rejected</p>
+      <p>Reason: {{ app.reviewNotes }}</p>
+      <p>Please contact support if you believe this is a mistake.</p>
+    } @else if (app.status === 'SUSPENDED') {
+      <p class="badge suspended">Suspended</p>
+      <p>Your account has been suspended. Please contact support.</p>
+    } @else if (app.status === 'APPROVED') {
+      <p class="badge approved">Approved</p>
+      <p>You're ready to start delivering!</p>
+      <button type="button" (click)="goToDashboard()">Go to dashboard</button>
+    }
+  </section>
+} @else {
+  <section class="onboarding-form">
+    <h1>Become a Delivery Partner</h1>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <fieldset>
+        <legend>Personal details</legend>
+        <label>Name <input formControlName="name" /></label>
+        <label>Mobile <input formControlName="mobile" /></label>
+        <label>Email <input formControlName="email" /></label>
+        <label>Address <textarea formControlName="address"></textarea></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Vehicle details</legend>
+        <label>
+          Vehicle type
+          <select formControlName="vehicleType">
+            <option value="BIKE">Bike</option>
+            <option value="SCOOTER">Scooter</option>
+            <option value="BICYCLE">Bicycle</option>
+            <option value="CAR">Car</option>
+          </select>
+        </label>
+        <label>Registration number <input formControlName="registrationNumber" /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Documents</legend>
+        @for (control of documentUrls.controls; track $index) {
+          <div class="document-row">
+            <input [formControl]="$any(control)" placeholder="Document URL" />
+            <button type="button" (click)="removeDocumentUrl($index)">Remove</button>
+          </div>
+        }
+        <button type="button" (click)="addDocumentUrl()">Add document URL</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Bank details</legend>
+        <label>Account number <input formControlName="accountNumber" /></label>
+        <label>IFSC <input formControlName="ifsc" /></label>
+        <label>Account holder <input formControlName="accountHolder" /></label>
+      </fieldset>
+
+      @if (errorMessage()) {
+        <p class="error" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="form.invalid || submitting()">
+        {{ submitting() ? 'Submitting…' : 'Submit application' }}
+      </button>
+    </form>
+  </section>
+}

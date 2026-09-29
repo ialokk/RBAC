@@ -1,0 +1,32 @@
+<section class="search">
+  <input
+    type="search"
+    placeholder="Search restaurants or food…"
+    [value]="query()"
+    (input)="onQueryChange($any($event.target).value)"
+  />
+
+  @if (loading()) {
+    <p>Searching…</p>
+  }
+
+  @if (restaurantResults().length > 0) {
+    <h2>Restaurants</h2>
+    <ul>
+      @for (restaurant of restaurantResults(); track restaurant._id) {
+        <li><a [routerLink]="['/customer/restaurants', restaurant._id]">{{ restaurant.name }}</a></li>
+      }
+    </ul>
+  }
+
+  @if (foodResults().length > 0) {
+    <h2>Food</h2>
+    <ul>
+      @for (item of foodResults(); track item._id) {
+        <li>
+          <a [routerLink]="['/customer/restaurants', item.restaurantId, 'items', item._id]">{{ item.name }}</a>
+        </li>
+      }
+    </ul>
+  }
+</section>

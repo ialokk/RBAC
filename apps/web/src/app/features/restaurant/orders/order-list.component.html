@@ -1,0 +1,80 @@
+<section class="restaurant-orders">
+  <h1>{{ isHistory ? 'Order History' : 'Orders' }}</h1>
+
+  @if (!isHistory) {
+    <nav class="status-tabs">
+      @for (tab of tabs; track tab.status) {
+        <button type="button" [class.active]="activeStatus() === tab.status" (click)="selectTab(tab.status)">
+          {{ tab.label }}
+        </button>
+      }
+    </nav>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else {
+    <ul class="order-list">
+      @for (order of orders(); track order._id) {
+        <li>
+          <header>
+            <span>{{ order.createdAt | date: 'short' }}</span>
+            <strong>{{ order.status }}</strong>
+            <span>₹{{ order.pricing.grandTotal / 100 }}</span>
+          </header>
+
+          <ul class="order-items">
+            @for (item of order.items; track item.menuItemId) {
+              <li>{{ item.qty }} × {{ item.nameSnapshot }}</li>
+            }
+          </ul>
+
+          @if (!isHistory) {
+            @if (order.status === 'RESTAURANT_PENDING') {
+              <div class="actions">
+                <button type="button" (click)="accept(order)">Accept</button>
+                @if (rejectingOrderId() === order._id) {
+                  <input
+                    type="text"
+                    placeholder="Rejection reason"
+                    [value]="rejectReason()"
+                    (input)="rejectReason.set($any($event.target).value)"
+                  />
+                  <button type="button" (click)="confirmReject(order)">Confirm reject</button>
+                  <button type="button" (click)="cancelReject()">Cancel</button>
+                } @else {
+                  <button type="button" (click)="startReject(order._id)">Reject</button>
+                }
+              </div>
+            }
+
+            @if (order.status === 'RESTAURANT_ACCEPTED') {
+              <div class="actions">
+                <input
+                  type="number"
+                  [value]="prepTimeFor(order._id)"
+                  (input)="setPrepTimeValue(order._id, +$any($event.target).value)"
+                />
+                <button type="button" (click)="submitPrepTime(order)">Set prep time</button>
+                <button type="button" (click)="markPreparing(order)">Start preparing</button>
+              </div>
+            }
+
+            @if (order.status === 'PREPARING') {
+              <div class="actions">
+                <span>Prep time: {{ order.prepTimeMinutes ?? '—' }} min</span>
+                <button type="button" (click)="markReady(order)">Mark ready</button>
+              </div>
+            }
+
+            @if (order.status === 'READY_FOR_PICKUP') {
+              <p>Awaiting delivery pickup.</p>
+            }
+          }
+        </li>
+      } @empty {
+        <p>No orders here.</p>
+      }
+    </ul>
+  }
+</section>

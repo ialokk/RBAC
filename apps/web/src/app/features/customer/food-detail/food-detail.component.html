@@ -1,0 +1,58 @@
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (item(); as i) {
+  <section class="food-detail">
+    <h1>{{ i.name }}</h1>
+    <p>{{ i.description }}</p>
+    <p>₹{{ i.price / 100 }}</p>
+
+    @if (i.variations.length > 0) {
+      <fieldset>
+        <legend>Choose an option</legend>
+        @for (variation of i.variations; track variation.name) {
+          <label>
+            <input
+              type="radio"
+              name="variation"
+              [value]="variation.name"
+              [checked]="selectedVariationName() === variation.name"
+              (change)="selectedVariationName.set(variation.name)"
+            />
+            {{ variation.name }} (+₹{{ variation.priceDelta / 100 }})
+          </label>
+        }
+      </fieldset>
+    }
+
+    @for (group of addonGroups(); track group._id) {
+      <fieldset>
+        <legend>{{ group.groupName }} (max {{ group.maxSelectable }})</legend>
+        @for (option of group.options; track option.name) {
+          <label>
+            <input
+              type="checkbox"
+              [checked]="selectedAddonNames().includes(option.name)"
+              (change)="toggleAddon(option.name, group)"
+            />
+            {{ option.name }} (+₹{{ option.price / 100 }})
+          </label>
+        }
+      </fieldset>
+    }
+
+    <label>
+      Special instructions
+      <textarea [value]="instructions()" (input)="instructions.set($any($event.target).value)" maxlength="300"></textarea>
+    </label>
+
+    <div class="qty-stepper">
+      <button type="button" (click)="changeQty(-1)">-</button>
+      <span>{{ qty() }}</span>
+      <button type="button" (click)="changeQty(1)">+</button>
+    </div>
+
+    <button type="button" (click)="addToCart()" [disabled]="adding() || !i.isAvailable">
+      {{ adding() ? 'Adding…' : 'Add to cart' }}
+    </button>
+  </section>
+}

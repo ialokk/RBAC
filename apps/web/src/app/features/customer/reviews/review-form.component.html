@@ -1,0 +1,36 @@
+<section class="review-form">
+  <h1>Leave a Review</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label>
+      Restaurant rating
+      <select formControlName="rating">
+        @for (r of ratings; track r) {
+          <option [value]="r">{{ r }} star{{ r > 1 ? 's' : '' }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Delivery partner rating
+      <select formControlName="deliveryPartnerRating">
+        @for (r of ratings; track r) {
+          <option [value]="r">{{ r }} star{{ r > 1 ? 's' : '' }}</option>
+        }
+      </select>
+    </label>
+
+    <label>
+      Comment
+      <textarea formControlName="comment" maxlength="1000"></textarea>
+    </label>
+
+    @if (errorMessage()) {
+      <p class="error" role="alert">{{ errorMessage() }}</p>
+    }
+
+    <button type="submit" [disabled]="form.invalid || submitting()">
+      {{ submitting() ? 'Submitting…' : 'Submit review' }}
+    </button>
+  </form>
+</section>

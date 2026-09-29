@@ -1,0 +1,25 @@
+<section class="order-history">
+  <h1>Order History</h1>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else {
+    <ul>
+      @for (order of orders(); track order._id) {
+        <li>
+          <a [routerLink]="['/customer/orders', order._id]">
+            <span>{{ order.createdAt | date: 'medium' }}</span>
+            <span>{{ statusLabel(order.status) }}</span>
+            <span>₹{{ order.pricing.grandTotal / 100 }}</span>
+          </a>
+        </li>
+      } @empty {
+        <p>No past orders yet.</p>
+      }
+    </ul>
+
+    @if (orders().length < total()) {
+      <button type="button" (click)="nextPage()">Load more</button>
+    }
+  }
+</section>

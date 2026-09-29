@@ -1,0 +1,15 @@
+@if (loading()) {
+  <p>Loading…</p>
+} @else if (summary(); as s) {
+  <section class="delivery-earnings">
+    <h1>Earnings</h1>
+
+    <div class="summary-cards">
+      <div class="card"><span>Today's deliveries</span><strong>{{ s.today.deliveries }}</strong></div>
+      <div class="card"><span>Today's earnings</span><strong>₹{{ s.today.earnings / 100 }}</strong></div>
+      <div class="card"><span>Total deliveries</span><strong>{{ s.totalDeliveries }}</strong></div>
+      <div class="card"><span>Total earnings</span><strong>₹{{ s.totalEarnings / 100 }}</strong></div>
+      <div class="card"><span>Per-delivery rate</span><strong>₹{{ s.perDeliveryRate / 100 }}</strong></div>
+    </div>
+  </section>
+}

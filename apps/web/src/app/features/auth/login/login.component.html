@@ -1,0 +1,36 @@
+<section class="login">
+  <h1>Sign in</h1>
+
+  @if (step() === 'request') {
+    <div class="channel-toggle">
+      <button type="button" [class.active]="channel() === 'SMS'" (click)="setChannel('SMS')">Mobile OTP</button>
+      <button type="button" [class.active]="channel() === 'EMAIL'" (click)="setChannel('EMAIL')">Email OTP</button>
+    </div>
+
+    <form [formGroup]="requestForm" (ngSubmit)="submitRequest()">
+      <label for="target">{{ channel() === 'SMS' ? 'Mobile number' : 'Email address' }}</label>
+      <input
+        id="target"
+        formControlName="target"
+        [type]="channel() === 'SMS' ? 'tel' : 'email'"
+        [placeholder]="channel() === 'SMS' ? '+91XXXXXXXXXX' : 'you@example.com'"
+      />
+      <button type="submit" [disabled]="requestForm.invalid || loading()">Send OTP</button>
+    </form>
+  } @else {
+    <form [formGroup]="verifyForm" (ngSubmit)="submitVerify()">
+      <label for="code">Enter the 6-digit code</label>
+      <input id="code" formControlName="code" type="text" inputmode="numeric" maxlength="6" placeholder="123456" />
+      <button type="submit" [disabled]="verifyForm.invalid || loading()">Verify &amp; continue</button>
+      <button type="button" class="link" (click)="backToRequest()">Use a different number/email</button>
+    </form>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  }
+
+  @if (errorMessage()) {
+    <p class="error" role="alert">{{ errorMessage() }}</p>
+  }
+</section>

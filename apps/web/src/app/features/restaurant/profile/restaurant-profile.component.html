@@ -1,0 +1,28 @@
+@if (loading()) {
+  <p>Loading…</p>
+} @else if (restaurant(); as r) {
+  <section class="restaurant-profile">
+    <h1>Restaurant Profile</h1>
+
+    <p>
+      Status: <strong>{{ r.isOpen ? 'Open' : 'Closed' }}</strong>
+      <button type="button" (click)="toggleOpen()">{{ r.isOpen ? 'Close restaurant' : 'Open restaurant' }}</button>
+    </p>
+    <p>★ {{ r.rating.avg }} ({{ r.rating.count }} reviews)</p>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <label>Name <input formControlName="name" /></label>
+      <label>Description <textarea formControlName="description"></textarea></label>
+      <label>Cuisines (comma separated) <input formControlName="cuisines" /></label>
+      <label>Average prep time (minutes) <input type="number" formControlName="avgPrepTimeMinutes" /></label>
+
+      @if (savedMessage()) {
+        <p class="info">{{ savedMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="form.invalid || saving()">
+        {{ saving() ? 'Saving…' : 'Save changes' }}
+      </button>
+    </form>
+  </section>
+}

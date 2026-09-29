@@ -1,0 +1,23 @@
+<section class="delivery-history">
+  <h1>Delivery History</h1>
+
+  @if (loading()) {
+    <p>Loading…</p>
+  } @else {
+    <ul>
+      @for (delivery of deliveries(); track delivery.id) {
+        <li>
+          <span>{{ delivery.deliveredAt | date: 'medium' }}</span>
+          <span>{{ delivery.order?.restaurantName }}</span>
+          <span>₹{{ (delivery.order?.pricing?.grandTotal ?? 0) / 100 }}</span>
+        </li>
+      } @empty {
+        <p>No completed deliveries yet.</p>
+      }
+    </ul>
+
+    @if (deliveries().length < total()) {
+      <button type="button" (click)="nextPage()">Load more</button>
+    }
+  }
+</section>

@@ -1,0 +1,46 @@
+{
+  "$schema": "./node_modules/@angular/service-worker/config/schema.json",
+  "index": "/index.html",
+  "assetGroups": [
+    {
+      "name": "app",
+      "installMode": "prefetch",
+      "resources": {
+        "files": [
+          "/favicon.ico",
+          "/index.csr.html",
+          "/index.html",
+          "/manifest.webmanifest",
+          "/*.css",
+          "/*.js"
+        ]
+      }
+    },
+    {
+      "name": "assets",
+      "installMode": "lazy",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": ["/**/*.(svg|cur|jpg|jpeg|png|apng|webp|avif|gif|otf|ttf|woff|woff2)"]
+      }
+    }
+  ],
+  "dataGroups": [
+    {
+      "_comment": "PUBLIC, unauthenticated GET endpoints only — network-first with a short cache fallback for offline browsing. Update the origin below to match the real deployed API domain (see environment.production.ts). Deliberately excludes /restaurants/:id and /restaurants/me since a glob can't tell them apart and /restaurants/me is an authenticated, per-account response (docs/SECURITY.md: never persistently cache authenticated API response bodies).",
+      "name": "public-browse-api",
+      "urls": [
+        "https://api.example.com/api/v1/search/**",
+        "https://api.example.com/api/v1/restaurants",
+        "https://api.example.com/api/v1/restaurants/*/menu/**",
+        "https://api.example.com/api/v1/restaurants/*/reviews"
+      ],
+      "cacheConfig": {
+        "strategy": "freshness",
+        "maxSize": 100,
+        "maxAge": "1h",
+        "timeout": "5s"
+      }
+    }
+  ]
+}

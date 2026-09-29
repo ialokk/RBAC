@@ -1,0 +1,19 @@
+<section class="profile">
+  <h1>My Profile</h1>
+
+  @if (authService.currentUser(); as user) {
+    <p>Name: {{ user.name || '—' }}</p>
+    <p>Mobile: {{ user.mobile || '—' }}</p>
+    <p>Email: {{ user.email || '—' }}</p>
+    <p>Role: {{ user.role }}</p>
+    <p>Status: {{ user.status }}</p>
+  }
+
+  <nav class="profile-links">
+    <a routerLink="/customer/addresses">Saved addresses</a>
+    <a routerLink="/customer/orders">Order history</a>
+    <a routerLink="/customer/notifications">Notifications</a>
+  </nav>
+
+  <button type="button" (click)="logout()">Log out</button>
+</section>

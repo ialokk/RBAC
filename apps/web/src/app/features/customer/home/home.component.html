@@ -1,0 +1,37 @@
+<section class="home">
+  <header class="location-bar">
+    <span>{{ locationLabel() }}</span>
+    <button type="button" (click)="useCurrentLocation()" [disabled]="locating()">
+      {{ locating() ? 'Locating…' : 'Use current location' }}
+    </button>
+  </header>
+
+  <a routerLink="/customer/search" class="search-link">Search restaurants or food…</a>
+
+  <nav class="categories">
+    @for (category of categories; track category) {
+      <button type="button" (click)="loadRestaurants(category)">{{ category }}</button>
+    }
+    <button type="button" (click)="loadRestaurants()">All</button>
+  </nav>
+
+  <h2>Restaurants near you</h2>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else {
+    <ul class="restaurant-grid">
+      @for (restaurant of restaurants(); track restaurant._id) {
+        <li>
+          <a [routerLink]="['/customer/restaurants', restaurant._id]">
+            <strong>{{ restaurant.name }}</strong>
+            <span>{{ restaurant.cuisines.join(', ') }}</span>
+            <span>★ {{ restaurant.rating.avg }} ({{ restaurant.rating.count }})</span>
+          </a>
+        </li>
+      } @empty {
+        <p>No restaurants found yet.</p>
+      }
+    </ul>
+  }
+</section>

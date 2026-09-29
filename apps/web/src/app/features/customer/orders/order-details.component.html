@@ -1,0 +1,60 @@
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (order(); as o) {
+  <section class="order-details">
+    <h1>Order Details</h1>
+    <p>Status: <strong>{{ statusLabel(o.status) }}</strong></p>
+    <p>Placed: {{ o.createdAt | date: 'medium' }}</p>
+
+    <h2>Items</h2>
+    <ul>
+      @for (item of o.items; track item.menuItemId) {
+        <li>
+          {{ item.qty }} × {{ item.nameSnapshot }}
+          @if (item.variationSnapshot) {
+            ({{ item.variationSnapshot.name }})
+          }
+          — ₹{{ item.priceSnapshot / 100 }}
+        </li>
+      }
+    </ul>
+
+    <h2>Delivery address</h2>
+    <p>
+      {{ o.deliveryAddressSnapshot.label }} — {{ o.deliveryAddressSnapshot.line1 }}, {{ o.deliveryAddressSnapshot.city }}
+    </p>
+
+    <h2>Pricing</h2>
+    <p>Items total: ₹{{ o.pricing.itemsTotal / 100 }}</p>
+    <p>Discount: -₹{{ o.pricing.discount / 100 }}</p>
+    <p>Delivery charge: ₹{{ o.pricing.deliveryCharge / 100 }}</p>
+    <p>Taxes: ₹{{ o.pricing.taxes / 100 }}</p>
+    <p><strong>Grand total: ₹{{ o.pricing.grandTotal / 100 }}</strong></p>
+
+    <h2>Status history</h2>
+    <ol>
+      @for (entry of o.statusHistory; track entry.at) {
+        <li>{{ entry.status }} — {{ entry.at | date: 'short' }}</li>
+      }
+    </ol>
+
+    @if (message()) {
+      <p class="info">{{ message() }}</p>
+    }
+
+    <div class="actions">
+      @if (canResumePayment()) {
+        <button type="button" (click)="resumePayment()" [disabled]="paying()">
+          {{ paying() ? 'Waiting for payment…' : 'Complete payment' }}
+        </button>
+      }
+      @if (canCancel()) {
+        <button type="button" (click)="cancelOrder()" [disabled]="cancelling()">Cancel order</button>
+      }
+      <button type="button" (click)="reorder()" [disabled]="reordering()">Reorder</button>
+      @if (o.status === 'DELIVERED') {
+        <a [routerLink]="['/customer/orders', o._id, 'review']">Leave a review</a>
+      }
+    </div>
+  </section>
+}

@@ -1,0 +1,37 @@
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (restaurant(); as r) {
+  <section class="restaurant-detail">
+    <header>
+      <h1>{{ r.name }}</h1>
+      <p>{{ r.cuisines.join(', ') }} · ★ {{ r.rating.avg }} ({{ r.rating.count }})</p>
+      <p>{{ r.isOpen ? 'Open now' : 'Currently closed' }} · ~{{ r.avgPrepTimeMinutes }} min prep</p>
+    </header>
+
+    <nav class="category-tabs">
+      <button type="button" [class.active]="activeCategoryId() === null" (click)="filterByCategory(null)">All</button>
+      @for (category of categories(); track category._id) {
+        <button type="button" [class.active]="activeCategoryId() === category._id" (click)="filterByCategory(category._id)">
+          {{ category.name }}
+        </button>
+      }
+    </nav>
+
+    <ul class="menu-items">
+      @for (item of visibleItems(); track item._id) {
+        <li>
+          <a [routerLink]="['/customer/restaurants', r._id, 'items', item._id]">
+            <span [class.veg]="item.isVeg" [class.non-veg]="!item.isVeg">{{ item.isVeg ? '🟢' : '🔴' }}</span>
+            <strong>{{ item.name }}</strong>
+            <span>₹{{ item.price / 100 }}</span>
+          </a>
+          <button type="button" (click)="quickAdd(item)" [disabled]="!item.isAvailable">
+            {{ item.isAvailable ? 'Add' : 'Unavailable' }}
+          </button>
+        </li>
+      } @empty {
+        <p>No menu items available yet.</p>
+      }
+    </ul>
+  </section>
+}

@@ -1,0 +1,34 @@
+<section class="addresses">
+  <h1>Saved Addresses</h1>
+
+  <ul>
+    @for (address of addresses(); track address._id) {
+      <li>
+        <strong>{{ address.label }}</strong>
+        <span>{{ address.line1 }}, {{ address.city }}, {{ address.state }} - {{ address.pincode }}</span>
+        @if (address.isDefault) {
+          <span class="badge">Default</span>
+        }
+        <button type="button" (click)="remove(address._id)">Delete</button>
+      </li>
+    } @empty {
+      <p>No saved addresses yet.</p>
+    }
+  </ul>
+
+  @if (!showForm()) {
+    <button type="button" (click)="showForm.set(true)">Add new address</button>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <label>Label <input formControlName="label" /></label>
+      <label>Address line 1 <input formControlName="line1" /></label>
+      <label>Address line 2 <input formControlName="line2" /></label>
+      <label>City <input formControlName="city" /></label>
+      <label>State <input formControlName="state" /></label>
+      <label>Pincode <input formControlName="pincode" /></label>
+      <label><input type="checkbox" formControlName="isDefault" /> Set as default</label>
+      <button type="submit" [disabled]="form.invalid || saving()">Save</button>
+      <button type="button" (click)="showForm.set(false)">Cancel</button>
+    </form>
+  }
+</section>

@@ -1,0 +1,25 @@
+@if (loading()) {
+  <app-loading-spinner />
+} @else if (summary(); as s) {
+  <section class="restaurant-dashboard">
+    <h1>Dashboard</h1>
+
+    <div class="summary-cards">
+      <div class="card"><span>Today's orders</span><strong>{{ s.today.totalOrders }}</strong></div>
+      <div class="card"><span>Today's revenue</span><strong>₹{{ s.today.revenue / 100 }}</strong></div>
+      <div class="card"><span>Pending</span><strong>{{ s.pending }}</strong></div>
+      <div class="card"><span>Accepted</span><strong>{{ s.accepted }}</strong></div>
+      <div class="card"><span>Preparing</span><strong>{{ s.preparing }}</strong></div>
+      <div class="card"><span>Ready</span><strong>{{ s.ready }}</strong></div>
+      <div class="card"><span>Completed</span><strong>{{ s.completed }}</strong></div>
+      <div class="card"><span>Cancelled</span><strong>{{ s.cancelled }}</strong></div>
+    </div>
+
+    <nav class="dashboard-links">
+      <a routerLink="/restaurant/orders">Manage orders</a>
+      <a routerLink="/restaurant/menu">Manage menu</a>
+      <a routerLink="/restaurant/profile">Restaurant profile</a>
+      <a routerLink="/restaurant/orders/history">Order history</a>
+    </nav>
+  </section>
+}

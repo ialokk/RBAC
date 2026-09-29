@@ -1,0 +1,25 @@
+<section class="restaurant-list">
+  <h1>Restaurants</h1>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else {
+    <ul>
+      @for (restaurant of restaurants(); track restaurant._id) {
+        <li>
+          <a [routerLink]="['/customer/restaurants', restaurant._id]">
+            <strong>{{ restaurant.name }}</strong>
+            <span>{{ restaurant.cuisines.join(', ') }}</span>
+            <span>{{ restaurant.isOpen ? 'Open' : 'Closed' }}</span>
+          </a>
+        </li>
+      } @empty {
+        <p>No restaurants available yet.</p>
+      }
+    </ul>
+
+    @if (restaurants().length < total()) {
+      <button type="button" (click)="nextPage()">Load more</button>
+    }
+  }
+</section>

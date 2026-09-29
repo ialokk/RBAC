@@ -1,0 +1,74 @@
+@if (loading()) {
+  <p>Loading…</p>
+} @else if (application(); as app) {
+  <section class="onboarding-status">
+    <h1>Restaurant Onboarding</h1>
+
+    @if (app.status === 'PENDING') {
+      <p class="badge pending">Pending admin approval</p>
+      <p>Your application for <strong>{{ app.restaurantDetails.name }}</strong> is under review. You'll get access to the dashboard once an admin approves it.</p>
+    } @else if (app.status === 'REJECTED') {
+      <p class="badge rejected">Rejected</p>
+      <p>Reason: {{ app.reviewNotes }}</p>
+      <p>Please contact support if you believe this is a mistake.</p>
+    } @else if (app.status === 'APPROVED') {
+      <p class="badge approved">Approved</p>
+      <p>Your restaurant is live!</p>
+      <button type="button" (click)="goToDashboard()">Go to dashboard</button>
+    }
+  </section>
+} @else {
+  <section class="onboarding-form">
+    <h1>Register your Restaurant</h1>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <fieldset>
+        <legend>Owner details</legend>
+        <label>Name <input formControlName="ownerName" /></label>
+        <label>Mobile <input formControlName="ownerMobile" /></label>
+        <label>Email <input formControlName="ownerEmail" /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Restaurant details</legend>
+        <label>Restaurant name <input formControlName="restaurantName" /></label>
+        <label>Cuisines (comma separated) <input formControlName="cuisines" placeholder="North Indian, Chinese" /></label>
+        <label>Description <textarea formControlName="description"></textarea></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Address</legend>
+        <label>Address line 1 <input formControlName="line1" /></label>
+        <label>City <input formControlName="city" /></label>
+        <label>State <input formControlName="state" /></label>
+        <label>Pincode <input formControlName="pincode" /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Documents</legend>
+        @for (control of documentUrls.controls; track $index) {
+          <div class="document-row">
+            <input [formControl]="$any(control)" placeholder="Document URL" />
+            <button type="button" (click)="removeDocumentUrl($index)">Remove</button>
+          </div>
+        }
+        <button type="button" (click)="addDocumentUrl()">Add document URL</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Bank details</legend>
+        <label>Account number <input formControlName="accountNumber" /></label>
+        <label>IFSC <input formControlName="ifsc" /></label>
+        <label>Account holder <input formControlName="accountHolder" /></label>
+      </fieldset>
+
+      @if (errorMessage()) {
+        <p class="error" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="form.invalid || submitting()">
+        {{ submitting() ? 'Submitting…' : 'Submit application' }}
+      </button>
+    </form>
+  </section>
+}

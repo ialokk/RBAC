@@ -1,0 +1,50 @@
+<section class="cart">
+  <h1>Your Cart</h1>
+
+  @if (cartState.cart().items.length === 0) {
+    <p>Your cart is empty.</p>
+  } @else {
+    <ul>
+      @for (item of cartState.cart().items; track item._id) {
+        <li>
+          <strong>{{ item.name }}</strong>
+          @if (item.selectedVariation) {
+            <span>({{ item.selectedVariation.name }})</span>
+          }
+          <span>₹{{ item.price / 100 }} × {{ item.qty }}</span>
+          <div class="qty-stepper">
+            <button type="button" (click)="changeQty(item._id, -1, item.qty)">-</button>
+            <span>{{ item.qty }}</span>
+            <button type="button" (click)="changeQty(item._id, 1, item.qty)">+</button>
+          </div>
+          <button type="button" (click)="removeItem(item._id)">Remove</button>
+        </li>
+      }
+    </ul>
+
+    <div class="coupon">
+      @if (cartState.cart().couponCode) {
+        <span>Coupon applied: {{ cartState.cart().couponCode }}</span>
+        <button type="button" (click)="removeCoupon()">Remove</button>
+      } @else {
+        <input type="text" placeholder="Coupon code" [value]="couponCode()" (input)="couponCode.set($any($event.target).value)" />
+        <button type="button" (click)="applyCoupon()">Apply</button>
+      }
+      @if (couponError()) {
+        <p class="error">{{ couponError() }}</p>
+      }
+    </div>
+
+    @if (pricing(); as p) {
+      <div class="pricing-breakdown">
+        <p>Items total: ₹{{ p.itemsTotal / 100 }}</p>
+        <p>Discount: -₹{{ p.discount / 100 }}</p>
+        <p>Delivery charge: ₹{{ p.deliveryCharge / 100 }}</p>
+        <p>Taxes: ₹{{ p.taxes / 100 }}</p>
+        <p><strong>Grand total: ₹{{ p.grandTotal / 100 }}</strong></p>
+      </div>
+    }
+
+    <button type="button" (click)="goToCheckout()">Proceed to checkout</button>
+  }
+</section>

@@ -1,0 +1,73 @@
+<section class="checkout">
+  <h1>Checkout</h1>
+
+  <h2>Delivery address</h2>
+  @if (addresses().length === 0) {
+    <p>No saved addresses. <a routerLink="/customer/addresses">Add one</a> before checking out.</p>
+  } @else {
+    <ul class="address-options">
+      @for (address of addresses(); track address._id) {
+        <li>
+          <label>
+            <input
+              type="radio"
+              name="address"
+              [checked]="selectedAddressId() === address._id"
+              (change)="selectedAddressId.set(address._id)"
+            />
+            <strong>{{ address.label }}</strong> — {{ address.line1 }}, {{ address.city }}
+          </label>
+        </li>
+      }
+    </ul>
+  }
+
+  <h2>Payment method</h2>
+  @if (!onlinePaymentAvailable) {
+    <p class="hint">Online payment is not configured in this environment — Cash on Delivery is available.</p>
+  }
+  <ul class="payment-options">
+    @for (option of paymentOptions; track option.method) {
+      <li>
+        <label [class.disabled]="!isMethodAvailable(option.method)">
+          <input
+            type="radio"
+            name="payment"
+            [value]="option.method"
+            [checked]="selectedMethod() === option.method"
+            [disabled]="!isMethodAvailable(option.method) || isBusy() || pendingOrderId() !== null"
+            (change)="selectedMethod.set(option.method)"
+          />
+          {{ option.label }}
+          @if (!isMethodAvailable(option.method)) {
+            <span class="badge">Unavailable</span>
+          }
+        </label>
+      </li>
+    }
+  </ul>
+
+  @if (pricing(); as p) {
+    <div class="pricing-breakdown">
+      <p>Items total: ₹{{ p.itemsTotal / 100 }}</p>
+      <p>Discount: -₹{{ p.discount / 100 }}</p>
+      <p>Delivery charge: ₹{{ p.deliveryCharge / 100 }}</p>
+      <p>Taxes: ₹{{ p.taxes / 100 }}</p>
+      <p><strong>Grand total: ₹{{ p.grandTotal / 100 }}</strong></p>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <p class="error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (outcome() === 'PENDING_CONFIRMATION' && pendingOrderId(); as orderId) {
+    <p class="hint">
+      <a [routerLink]="['/customer/orders', orderId]">Open the order page</a> to see the confirmed status.
+    </p>
+  }
+
+  <button type="button" (click)="submit()" [disabled]="isBusy() || !selectedAddressId()">
+    {{ submitLabel() }}
+  </button>
+</section>

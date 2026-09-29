@@ -1,0 +1,42 @@
+# Optional self-terminated-TLS variant of nginx.conf — use this INSTEAD of nginx.conf when nginx
+# itself (not an upstream cloud load balancer) is the TLS endpoint (docs/SECURITY.md §7). Copy to
+# nginx.conf, mount real certs (e.g. via certbot) at the paths below, and update docker-compose.yml
+# to publish 443:443 and mount the cert volume. See docs/DEPLOYMENT.md §"HTTPS".
+server {
+  listen 80;
+  server_name _;
+  # ACME HTTP-01 challenge path for certbot renewal; everything else redirects to HTTPS.
+  location /.well-known/acme-challenge/ {
+    root /var/www/certbot;
+  }
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}
+
+server {
+  listen 443 ssl;
+  http2 on;
+  server_name _;
+  root /usr/share/nginx/html;
+  index index.html;
+
+  ssl_certificate     /etc/letsencrypt/live/YOUR_DOMAIN/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/YOUR_DOMAIN/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_prefer_server_ciphers off;
+
+  add_header Strict-Transport-Security "max-age=63072000; includeSubDomains" always;
+
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+
+  location = /ngsw-worker.js {
+    add_header Cache-Control "no-cache";
+  }
+
+  location = /ngsw.json {
+    add_header Cache-Control "no-cache";
+  }
+}

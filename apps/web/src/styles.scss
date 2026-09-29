@@ -1,0 +1,43 @@
+/* You can add global styles to this file, and also import other style files */
+
+:root {
+  --app-color-primary: #1a1a1a;
+  --app-color-surface: #f2f2f2;
+  --app-color-muted: #666;
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* Respect notches/rounded corners when running full-screen (PWA installed / Capacitor). */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Touch-friendly minimum tap target size on mobile — excludes checkbox/radio/range which have
+   their own natural small size. */
+button,
+a.btn,
+input:not([type='checkbox']):not([type='radio']):not([type='range']) {
+  min-height: 44px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

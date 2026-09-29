@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+**/dist/
+apps/web/.angular/
+apps/api/dist/
+
+# Environment
+.env
+.env.*
+!.env.example
+!apps/*/.env.example
+
+# Logs
+npm-debug.log*
+*.log
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+
+# Capacitor / Android
+# NOTE: apps/web/android/ platform source IS committed (Phase 11) — see apps/web/.gitignore for
+# the precise machine-specific/build-output exclusions within it (local.properties, build/, etc.).
+apps/web/ios/
+
+# Test artifacts
+apps/api/dist-test/
+coverage/
+**/coverage/
+apps/web/playwright-report/
+apps/web/test-results/
