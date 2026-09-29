@@ -31,10 +31,12 @@ function apiErrorMessage(err: unknown, fallback: string): string {
   return fallback;
 }
 
+import { BackButtonComponent } from '../../../shared/ui/back-button/back-button.component';
+
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, BackButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './checkout.component.html',
 })

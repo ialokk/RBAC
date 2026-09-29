@@ -7,7 +7,7 @@ import type { AppNotification } from '../data/models';
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [CommonModule, LoadingSpinnerComponent],
+  imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './notifications.component.html',
 })

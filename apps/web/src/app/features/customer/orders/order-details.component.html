@@ -1,7 +1,14 @@
 @if (loading()) {
-  <app-loading-spinner />
+  <section class="order-details">
+    <div class="skeleton" style="height: 24px; width: 150px; margin-bottom: 24px;"></div>
+    <div class="skeleton" style="height: 40px; width: 60%; margin-bottom: 16px;"></div>
+    <div class="skeleton" style="height: 20px; width: 40%; margin-bottom: 16px;"></div>
+    <div class="skeleton" style="height: 150px; width: 100%; margin-bottom: 24px;"></div>
+    <div class="skeleton" style="height: 150px; width: 100%;"></div>
+  </section>
 } @else if (order(); as o) {
   <section class="order-details">
+    <app-back-button label="Back to orders" fallbackUrl="/customer/orders" />
     <h1>Order Details</h1>
     <p>Status: <strong>{{ statusLabel(o.status) }}</strong></p>
     <p>Placed: {{ o.createdAt | date: 'medium' }}</p>

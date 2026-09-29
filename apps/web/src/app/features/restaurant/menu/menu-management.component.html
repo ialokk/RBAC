@@ -1,89 +1,189 @@
-@if (loading()) {
-  <p>Loading…</p>
-} @else {
-  <section class="menu-management">
+<div class="menu-management stack">
+  <div class="section-head">
     <h1>Menu Management</h1>
+  </div>
 
-    <section class="categories">
-      <h2>Categories</h2>
-      <ul>
+  @if (loading()) {
+    <div class="grid-auto">
+      @for (i of [1, 2, 3]; track i) {
+        <div class="skeleton card" style="height: 150px"></div>
+      }
+    </div>
+  } @else {
+    <section class="menu-section card card-pad stack">
+      <div class="section-head">
+        <h2>Categories</h2>
+      </div>
+
+      <div class="category-list row">
         @for (category of categories(); track category._id) {
-          <li>{{ category.name }} <button type="button" (click)="deleteCategory(category._id)">Delete</button></li>
+          <div class="badge badge-surface">
+            {{ category.name }}
+            <button type="button" class="btn-icon btn-ghost" (click)="deleteCategory(category._id)" title="Delete">
+              <app-icon name="close" [size]="14" />
+            </button>
+          </div>
         } @empty {
-          <p>No categories yet.</p>
+          <p class="text-sm text-muted">No categories yet.</p>
         }
-      </ul>
-      <form [formGroup]="categoryForm" (ngSubmit)="addCategory()">
-        <input formControlName="name" placeholder="Category name" />
-        <button type="submit" [disabled]="categoryForm.invalid">Add category</button>
+      </div>
+
+      <form [formGroup]="categoryForm" (ngSubmit)="addCategory()" class="row">
+        <input class="input" formControlName="name" placeholder="New category name" style="max-width: 300px" />
+        <button type="submit" class="btn btn-secondary" [disabled]="categoryForm.invalid">Add Category</button>
       </form>
     </section>
 
-    <section class="items">
-      <h2>Food Items</h2>
-      <ul>
-        @for (item of items(); track item._id) {
-          <li>
-            <span [class.veg]="item.isVeg">{{ item.isVeg ? '🟢' : '🔴' }}</span>
-            <strong>{{ item.name }}</strong>
-            <span>{{ categoryName(item.categoryId) }}</span>
-            <span>₹{{ item.price / 100 }}</span>
-            <button type="button" (click)="toggleAvailability(item)">
-              {{ item.isAvailable ? 'Mark unavailable' : 'Mark available' }}
-            </button>
-            <button type="button" (click)="deleteItem(item._id)">Delete</button>
-          </li>
-        } @empty {
-          <p>No food items yet.</p>
-        }
-      </ul>
+    <section class="menu-section card card-pad stack">
+      <div class="section-head">
+        <h2>Food Items</h2>
+      </div>
 
-      <form [formGroup]="itemForm" (ngSubmit)="addItem()">
-        <label>
-          Category
-          <select formControlName="categoryId">
+      @if (items().length) {
+        <div class="item-list stack">
+          @for (item of items(); track item._id) {
+            <div class="menu-item row-between">
+              <div class="menu-item__info row">
+                <span class="veg-badge" [class.is-veg]="item.isVeg" title="{{ item.isVeg ? 'Vegetarian' : 'Non-Vegetarian' }}"></span>
+                <div class="stack" style="gap: 2px">
+                  <strong class="text-strong">{{ item.name }}</strong>
+                  <span class="text-xs text-muted">{{ categoryName(item.categoryId) }}</span>
+                </div>
+              </div>
+              
+              <div class="menu-item__actions row">
+                <span class="text-strong">{{ item.price | money }}</span>
+                <button type="button" class="btn btn-secondary btn-sm" (click)="toggleAvailability(item)">
+                  {{ item.isAvailable ? 'Available' : 'Unavailable' }}
+                </button>
+                <button type="button" class="btn btn-ghost btn-sm btn-icon" (click)="deleteItem(item._id)" title="Delete item">
+                  <app-icon name="delete" [size]="18" />
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-sm text-muted">No food items yet.</p>
+      }
+
+      <div class="divider"></div>
+      
+      <h3 class="text-strong">Add New Item</h3>
+      <form [formGroup]="itemForm" (ngSubmit)="addItem()" class="grid-auto">
+        <label class="field">
+          <span class="label">Category</span>
+          <select class="select" formControlName="categoryId">
             <option value="" disabled>Select category</option>
             @for (category of categories(); track category._id) {
               <option [value]="category._id">{{ category.name }}</option>
             }
           </select>
         </label>
-        <label>Name <input formControlName="name" /></label>
-        <label>Description <textarea formControlName="description"></textarea></label>
-        <label>Price (₹) <input type="number" formControlName="price" /></label>
-        <label>Image URL <input formControlName="imageUrl" placeholder="https://…" /></label>
-        <label><input type="checkbox" formControlName="isVeg" /> Vegetarian</label>
-        <label><input type="checkbox" formControlName="isAvailable" /> Available</label>
-        <label>Prep time (minutes) <input type="number" formControlName="prepTimeMinutes" /></label>
-        <button type="submit" [disabled]="itemForm.invalid">Add food item</button>
+        
+        <label class="field">
+          <span class="label">Name</span>
+          <input class="input" formControlName="name" placeholder="Item name" />
+        </label>
+        
+        <label class="field">
+          <span class="label">Price (₹)</span>
+          <input class="input" type="number" formControlName="price" placeholder="Price in paise" />
+          <span class="field-hint">Enter amount in paise (e.g. 29900 for ₹299)</span>
+        </label>
+
+        <label class="field">
+          <span class="label">Prep time (minutes)</span>
+          <input class="input" type="number" formControlName="prepTimeMinutes" />
+        </label>
+        
+        <label class="field" style="grid-column: 1 / -1;">
+          <span class="label">Description</span>
+          <textarea class="textarea" formControlName="description" placeholder="Brief description of the item"></textarea>
+        </label>
+        
+        <label class="field" style="grid-column: 1 / -1;">
+          <span class="label">Image URL</span>
+          <input class="input" formControlName="imageUrl" placeholder="https://..." />
+        </label>
+        
+        <div class="row" style="grid-column: 1 / -1;">
+          <label class="row" style="cursor: pointer">
+            <input type="checkbox" formControlName="isVeg" />
+            <span class="label">Vegetarian</span>
+          </label>
+          <label class="row" style="cursor: pointer; margin-left: 16px;">
+            <input type="checkbox" formControlName="isAvailable" />
+            <span class="label">Available</span>
+          </label>
+        </div>
+        
+        <div style="grid-column: 1 / -1;">
+          <button type="submit" class="btn btn-primary" [disabled]="itemForm.invalid">Add Food Item</button>
+        </div>
       </form>
     </section>
 
-    <section class="addons">
-      <h2>Add-on Groups</h2>
-      <ul>
-        @for (group of addonGroups(); track group._id) {
-          <li>
-            <strong>{{ group.groupName }}</strong> (max {{ group.maxSelectable }})
-            <ul>
-              @for (option of group.options; track option.name) {
-                <li>{{ option.name }} (+₹{{ option.price / 100 }})</li>
-              }
-            </ul>
-            <button type="button" (click)="deleteAddonGroup(group._id)">Delete group</button>
-          </li>
-        } @empty {
-          <p>No add-on groups yet.</p>
-        }
-      </ul>
+    <section class="menu-section card card-pad stack">
+      <div class="section-head">
+        <h2>Add-on Groups</h2>
+      </div>
 
-      <form [formGroup]="addonForm" (ngSubmit)="addAddonGroup()">
-        <label>Group name <input formControlName="groupName" placeholder="Extra Toppings" /></label>
-        <label>First option name <input formControlName="optionName" /></label>
-        <label>Option price (₹) <input type="number" formControlName="optionPrice" /></label>
-        <label>Max selectable <input type="number" formControlName="maxSelectable" /></label>
-        <button type="submit" [disabled]="addonForm.invalid">Add group</button>
+      @if (addonGroups().length) {
+        <div class="grid-auto">
+          @for (group of addonGroups(); track group._id) {
+            <div class="card card-pad stack" style="box-shadow: none; background: var(--c-surface-2);">
+              <div class="row-between">
+                <strong class="text-strong">{{ group.groupName }}</strong>
+                <button type="button" class="btn btn-ghost btn-sm btn-icon" (click)="deleteAddonGroup(group._id)" title="Delete group">
+                  <app-icon name="delete" [size]="16" />
+                </button>
+              </div>
+              <span class="text-xs text-muted">Select up to {{ group.maxSelectable }}</span>
+              <ul class="addon-list">
+                @for (option of group.options; track option.name) {
+                  <li class="row-between text-sm">
+                    <span>{{ option.name }}</span>
+                    <span>+{{ option.price | money }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-sm text-muted">No add-on groups yet.</p>
+      }
+
+      <div class="divider"></div>
+
+      <h3 class="text-strong">Add New Add-on Group</h3>
+      <form [formGroup]="addonForm" (ngSubmit)="addAddonGroup()" class="grid-auto">
+        <label class="field">
+          <span class="label">Group Name</span>
+          <input class="input" formControlName="groupName" placeholder="e.g. Extra Toppings" />
+        </label>
+        
+        <label class="field">
+          <span class="label">Max Selectable</span>
+          <input class="input" type="number" formControlName="maxSelectable" />
+        </label>
+
+        <label class="field">
+          <span class="label">First Option Name</span>
+          <input class="input" formControlName="optionName" placeholder="e.g. Extra Cheese" />
+        </label>
+        
+        <label class="field">
+          <span class="label">First Option Price (₹)</span>
+          <input class="input" type="number" formControlName="optionPrice" />
+          <span class="field-hint">Amount in paise</span>
+        </label>
+        
+        <div style="grid-column: 1 / -1;">
+          <button type="submit" class="btn btn-primary" [disabled]="addonForm.invalid">Add Add-on Group</button>
+        </div>
       </form>
     </section>
-  </section>
-}
+  }
+</div>

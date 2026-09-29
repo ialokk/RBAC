@@ -1,7 +1,14 @@
 @if (loading()) {
-  <app-loading-spinner />
+  <section class="food-detail">
+    <div class="skeleton" style="height: 24px; width: 150px; margin-bottom: 24px;"></div>
+    <div class="skeleton" style="height: 40px; width: 80%; margin-bottom: 16px;"></div>
+    <div class="skeleton" style="height: 60px; width: 100%; margin-bottom: 24px;"></div>
+    <div class="skeleton" style="height: 150px; width: 100%; margin-bottom: 24px;"></div>
+    <div class="skeleton" style="height: 40px; width: 100%;"></div>
+  </section>
 } @else if (item(); as i) {
   <section class="food-detail">
+    <app-back-button label="Back to menu" />
     <h1>{{ i.name }}</h1>
     <p>{{ i.description }}</p>
     <p>₹{{ i.price / 100 }}</p>

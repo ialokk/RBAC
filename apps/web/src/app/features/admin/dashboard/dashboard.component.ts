@@ -2,55 +2,70 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { AdminNavComponent } from '../admin-nav.component';
 import { LoadingSpinnerComponent } from '../../../shared/ui/loading-spinner/loading-spinner.component';
+import { StatCardComponent } from '../../../shared/ui/stat-card/stat-card.component';
 import { AdminService } from '../data/admin.service';
 import type { DashboardSummary } from '../data/models';
+import { MoneyPipe } from '../../../shared/ui/money.pipe';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, AdminNavComponent, LoadingSpinnerComponent],
+  imports: [CommonModule, AdminNavComponent, StatCardComponent, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section>
+    <div class="container scroll-x">
       <app-admin-nav />
-      <h1>Admin Dashboard</h1>
+      
+      <div class="mb-4">
+        <h1 class="text-xl">Admin Dashboard</h1>
+        <p class="text-secondary text-sm">Platform overview and metrics.</p>
+      </div>
+
       @if (loading()) {
-        <app-loading-spinner />
+        <div class="dashboard-grid">
+          <div class="skeleton" style="height: 100px; border-radius: var(--r-md);"></div>
+          <div class="skeleton" style="height: 100px; border-radius: var(--r-md);"></div>
+          <div class="skeleton" style="height: 100px; border-radius: var(--r-md);"></div>
+          <div class="skeleton" style="height: 100px; border-radius: var(--r-md);"></div>
+          <div class="skeleton" style="height: 100px; border-radius: var(--r-md);"></div>
+          <div class="skeleton" style="height: 100px; border-radius: var(--r-md);"></div>
+          <div class="skeleton" style="height: 100px; border-radius: var(--r-md);"></div>
+          <div class="skeleton" style="height: 100px; border-radius: var(--r-md);"></div>
+        </div>
       } @else if (summary(); as s) {
-        <div class="cards">
-          <div class="card"><strong>{{ s.customers }}</strong><span>Customers</span></div>
-          <div class="card"><strong>{{ s.restaurants }}</strong><span>Restaurants</span></div>
-          <div class="card"><strong>{{ s.deliveryPartners }}</strong><span>Delivery Partners</span></div>
-          <div class="card"><strong>{{ s.activeDeliveries }}</strong><span>Active Deliveries</span></div>
-          <div class="card"><strong>{{ s.pendingApprovals.restaurants }}</strong><span>Pending Restaurant Approvals</span></div>
-          <div class="card"><strong>{{ s.pendingApprovals.deliveryPartners }}</strong><span>Pending Delivery Approvals</span></div>
-          <div class="card"><strong>{{ s.today.totalOrders }}</strong><span>Orders Today</span></div>
-          <div class="card"><strong>{{ (s.today.revenue / 100).toFixed(2) }}</strong><span>Revenue Today</span></div>
+        <div class="dashboard-grid">
+          <app-stat-card label="Customers" [value]="s.customers" icon="users" link="/admin/users" />
+          <app-stat-card label="Restaurants" [value]="s.restaurants" icon="store" link="/admin/restaurants" />
+          <app-stat-card label="Delivery Partners" [value]="s.deliveryPartners" icon="bike" link="/admin/delivery-partners" />
+          <app-stat-card label="Active Deliveries" [value]="s.activeDeliveries" icon="package" link="/admin/orders" />
+          <app-stat-card label="Pending Restaurants" [value]="s.pendingApprovals.restaurants" icon="alert-circle" link="/admin/restaurants" [highlight]="s.pendingApprovals.restaurants > 0" />
+          <app-stat-card label="Pending Delivery Partners" [value]="s.pendingApprovals.deliveryPartners" icon="alert-circle" link="/admin/delivery-partners" [highlight]="s.pendingApprovals.deliveryPartners > 0" />
+          <app-stat-card label="Orders Today" [value]="s.today.totalOrders" icon="receipt" link="/admin/orders" />
+          <app-stat-card label="Revenue Today" [value]="s.today.revenue | money" icon="credit-card" />
         </div>
       }
-    </section>
+    </div>
   `,
   styles: [
     `
-      .cards {
+      .dashboard-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 1rem;
       }
-      .card {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        padding: 1rem;
-        border: 1px solid #ddd;
-        border-radius: 6px;
+      .mb-4 {
+        margin-bottom: 1.5rem;
       }
-      .card strong {
+      .text-xl {
         font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0 0 0.25rem 0;
       }
-      .card span {
-        color: #666;
-        font-size: 0.85rem;
+      .text-sm {
+        font-size: 0.875rem;
+      }
+      .text-secondary {
+        color: var(--text-secondary, #666);
       }
     `,
   ],

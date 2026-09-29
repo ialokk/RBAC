@@ -2,48 +2,36 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
-// Shared top nav reused by every admin page — mirrors the lightweight per-page inline-nav
-// convention already used by the restaurant dashboard, just factored out once since the admin
-// area has many more sibling pages than any other feature area.
 @Component({
   selector: 'app-admin-nav',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <nav class="admin-nav">
-      <a routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</a>
-      <a routerLink="/admin/users" routerLinkActive="active">Users</a>
-      <a routerLink="/admin/restaurants" routerLinkActive="active">Restaurants</a>
-      <a routerLink="/admin/delivery-partners" routerLinkActive="active">Delivery Partners</a>
-      <a routerLink="/admin/orders" routerLinkActive="active">Orders</a>
-      <a routerLink="/admin/payments" routerLinkActive="active">Payments</a>
-      <a routerLink="/admin/coupons" routerLinkActive="active">Coupons</a>
-      <a routerLink="/admin/config" routerLinkActive="active">Platform Config</a>
-      <a routerLink="/admin/marketing" routerLinkActive="active">Marketing</a>
-      <a routerLink="/admin/reports" routerLinkActive="active">Reports</a>
-      <a routerLink="/admin/audit-logs" routerLinkActive="active">Audit Logs</a>
+    <nav class="scroll-x mb-4" aria-label="Admin Sections">
+      <a class="chip" routerLink="/admin/dashboard" routerLinkActive="is-active">Dashboard</a>
+      <a class="chip" routerLink="/admin/users" routerLinkActive="is-active">Users</a>
+      <a class="chip" routerLink="/admin/restaurants" routerLinkActive="is-active">Restaurants</a>
+      <a class="chip" routerLink="/admin/delivery-partners" routerLinkActive="is-active">Delivery Partners</a>
+      <a class="chip" routerLink="/admin/orders" routerLinkActive="is-active">Orders</a>
+      <a class="chip" routerLink="/admin/payments" routerLinkActive="is-active">Payments</a>
+      <a class="chip" routerLink="/admin/coupons" routerLinkActive="is-active">Coupons</a>
+      <a class="chip" routerLink="/admin/config" routerLinkActive="is-active">Platform Config</a>
+      <a class="chip" routerLink="/admin/marketing" routerLinkActive="is-active">Marketing</a>
+      <a class="chip" routerLink="/admin/reports" routerLinkActive="is-active">Reports</a>
+      <a class="chip" routerLink="/admin/audit-logs" routerLinkActive="is-active">Audit Logs</a>
     </nav>
   `,
   styles: [
     `
-      .admin-nav {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.75rem;
-        padding: 0.75rem 0;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid #ddd;
+      .mb-4 {
+        margin-bottom: 1.5rem;
       }
-      .admin-nav a {
+      .chip {
         text-decoration: none;
-        color: #333;
-        font-size: 0.9rem;
       }
-      .admin-nav a.active {
-        font-weight: 600;
-        color: #1a1a1a;
-        text-decoration: underline;
+      .chip:hover {
+        text-decoration: none;
       }
     `,
   ],

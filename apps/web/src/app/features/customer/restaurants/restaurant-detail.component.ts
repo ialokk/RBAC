@@ -11,6 +11,7 @@ import { CartStateService } from '../data/cart-state.service';
 import { MenuService } from '../data/menu.service';
 import { RestaurantsService } from '../data/restaurants.service';
 import type { MenuCategory, MenuItem, Restaurant } from '../data/models';
+import { BackButtonComponent } from '../../../shared/ui/back-button/back-button.component';
 
 @Component({
   selector: 'app-restaurant-detail',
@@ -24,6 +25,7 @@ import type { MenuCategory, MenuItem, Restaurant } from '../data/models';
     SkeletonCardsComponent,
     FoodCardComponent,
     MoneyPipe,
+    BackButtonComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './restaurant-detail.component.html',

@@ -5,10 +5,12 @@ import { Router } from '@angular/router';
 import { CartStateService } from '../data/cart-state.service';
 import type { PricingBreakdown } from '../data/models';
 
+import { BackButtonComponent } from '../../../shared/ui/back-button/back-button.component';
+
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, BackButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './cart.component.html',
 })

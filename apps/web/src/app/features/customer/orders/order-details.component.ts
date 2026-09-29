@@ -6,13 +6,14 @@ import { OrdersService } from '../data/orders.service';
 import { PaymentsService } from '../data/payments.service';
 import { orderStatusLabel } from '../data/order-status-label';
 import type { Order, OnlinePaymentMethod } from '../data/models';
+import { BackButtonComponent } from '../../../shared/ui/back-button/back-button.component';
 
 const CANCELLABLE_STATUSES = ['CREATED', 'PAYMENT_PENDING', 'PAID', 'RESTAURANT_PENDING', 'RESTAURANT_ACCEPTED'];
 
 @Component({
   selector: 'app-order-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingSpinnerComponent],
+  imports: [CommonModule, RouterLink, BackButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-details.component.html',
 })

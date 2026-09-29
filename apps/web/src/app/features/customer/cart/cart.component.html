@@ -1,4 +1,5 @@
 <section class="cart">
+  <app-back-button label="Back to menu" fallbackUrl="/customer/home" />
   <h1>Your Cart</h1>
 
   @if (cartState.cart().items.length === 0) {

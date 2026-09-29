@@ -1,0 +1,23 @@
+@use '../../../../styles/tokens' as *;
+
+.restaurant-profile {
+  gap: var(--s-6);
+}
+
+.m-0 {
+  margin: 0;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--c-line);
+  margin: var(--s-4) 0;
+}
+
+.success-message {
+  color: var(--c-success);
+  font-weight: 600;
+  padding: var(--s-3);
+  background: var(--c-success-soft);
+  border-radius: var(--r-md);
+}

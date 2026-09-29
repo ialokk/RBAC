@@ -12,7 +12,7 @@
   />
 } @else if (restaurant(); as r) {
   <div class="rd">
-    <a class="back text-sm" routerLink="/customer/home">← Back to restaurants</a>
+    <app-back-button label="Back to restaurants" fallbackUrl="/customer/home" />
 
     <header class="rd__hero card">
       <div class="rd__info">

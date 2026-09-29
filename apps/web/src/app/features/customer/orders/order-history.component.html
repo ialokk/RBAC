@@ -2,7 +2,11 @@
   <h1>Order History</h1>
 
   @if (loading()) {
-    <app-loading-spinner />
+    <div style="display: flex; flex-direction: column; gap: var(--s-3)">
+      <div class="skeleton" style="height: 60px; width: 100%;"></div>
+      <div class="skeleton" style="height: 60px; width: 100%;"></div>
+      <div class="skeleton" style="height: 60px; width: 100%;"></div>
+    </div>
   } @else {
     <ul>
       @for (order of orders(); track order._id) {

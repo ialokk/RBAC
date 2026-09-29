@@ -1,15 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { IconComponent } from '../../../shared/ui/icon/icon.component';
 import { RestaurantProfileService } from '../data/restaurant-profile.service';
 import type { OwnRestaurant } from '../data/models';
 
 @Component({
   selector: 'app-restaurant-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './restaurant-profile.component.html',
+  styleUrl: './restaurant-profile.component.scss',
 })
 export class RestaurantProfileComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

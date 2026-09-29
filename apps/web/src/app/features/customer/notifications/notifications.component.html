@@ -2,7 +2,11 @@
   <h1>Notifications</h1>
 
   @if (loading()) {
-    <app-loading-spinner />
+    <div style="display: flex; flex-direction: column; gap: var(--s-3)">
+      <div class="skeleton" style="height: 50px; width: 100%;"></div>
+      <div class="skeleton" style="height: 50px; width: 100%;"></div>
+      <div class="skeleton" style="height: 50px; width: 100%;"></div>
+    </div>
   } @else {
     <ul>
       @for (notification of notifications(); track notification._id) {

@@ -2,77 +2,166 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AdminNavComponent } from '../admin-nav.component';
-import { LoadingSpinnerComponent } from '../../../shared/ui/loading-spinner/loading-spinner.component';
 import { AdminOrdersService } from '../data/admin-orders.service';
 import type { AdminOrder } from '../data/models';
+import { StatusBadgeComponent, toneForStatus } from '../../../shared/ui/status-badge/status-badge.component';
+import { MoneyPipe } from '../../../shared/ui/money.pipe';
 
 const CANCELLABLE_STATUSES = new Set(['CREATED', 'PAYMENT_PENDING', 'RESTAURANT_PENDING', 'RESTAURANT_ACCEPTED', 'PREPARING']);
 
 @Component({
   selector: 'app-admin-orders',
   standalone: true,
-  imports: [CommonModule, FormsModule, AdminNavComponent, LoadingSpinnerComponent],
+  imports: [CommonModule, FormsModule, AdminNavComponent, StatusBadgeComponent, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section>
+    <div class="container scroll-x">
       <app-admin-nav />
-      <h1>Orders</h1>
-      <div class="filters">
-        <input type="search" placeholder="Filter by status (e.g. DELIVERY_ASSIGNED)" [(ngModel)]="status" (change)="load()" />
+      
+      <div class="mb-4">
+        <h1 class="text-xl">Orders</h1>
+        <p class="text-secondary text-sm">Monitor and manage platform orders.</p>
       </div>
+
+      <div class="filters">
+        <select class="field search-field" [(ngModel)]="status" (change)="load()">
+          <option value="">All Statuses</option>
+          <option value="CREATED">CREATED</option>
+          <option value="PAYMENT_PENDING">PAYMENT_PENDING</option>
+          <option value="PAID">PAID</option>
+          <option value="RESTAURANT_PENDING">RESTAURANT_PENDING</option>
+          <option value="RESTAURANT_ACCEPTED">RESTAURANT_ACCEPTED</option>
+          <option value="PREPARING">PREPARING</option>
+          <option value="READY_FOR_PICKUP">READY_FOR_PICKUP</option>
+          <option value="DELIVERY_ASSIGNED">DELIVERY_ASSIGNED</option>
+          <option value="PICKED_UP">PICKED_UP</option>
+          <option value="OUT_FOR_DELIVERY">OUT_FOR_DELIVERY</option>
+          <option value="DELIVERED">DELIVERED</option>
+          <option value="CUSTOMER_CANCELLED">CUSTOMER_CANCELLED</option>
+          <option value="RESTAURANT_CANCELLED">RESTAURANT_CANCELLED</option>
+          <option value="DELIVERY_CANCELLED">DELIVERY_CANCELLED</option>
+        </select>
+      </div>
+
       @if (loading()) {
-        <app-loading-spinner />
+        <div class="skeleton-table">
+          <div class="skeleton-row" *ngFor="let _ of [1,2,3,4,5]">
+            <div class="skeleton" style="width: 25%; height: 20px;"></div>
+            <div class="skeleton" style="width: 20%; height: 20px;"></div>
+            <div class="skeleton" style="width: 15%; height: 20px;"></div>
+            <div class="skeleton" style="width: 15%; height: 20px;"></div>
+            <div class="skeleton" style="width: 15%; height: 20px;"></div>
+          </div>
+        </div>
       } @else {
-        <table>
-          <thead>
-            <tr>
-              <th>Order</th>
-              <th>Status</th>
-              <th>Payment</th>
-              <th>Total</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (o of orders(); track o._id) {
+        <div class="table-container">
+          <table class="table">
+            <thead>
               <tr>
-                <td>{{ o._id }}</td>
-                <td>{{ o.status }}</td>
-                <td>{{ o.paymentMethod }}</td>
-                <td>{{ (o.pricing.grandTotal / 100).toFixed(2) }}</td>
-                <td>
-                  @if (isCancellable(o)) {
-                    <button (click)="cancel(o)">Cancel</button>
-                  }
-                  @if (o.status === 'DELIVERY_ASSIGNED') {
-                    <button (click)="reassign(o)">Reassign Delivery</button>
-                  }
-                </td>
+                <th>Order ID</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th class="text-right">Total</th>
+                <th class="text-right">Actions</th>
               </tr>
-            }
-          </tbody>
-        </table>
-        <p>Total: {{ total() }}</p>
+            </thead>
+            <tbody>
+              @for (o of orders(); track o._id) {
+                <tr>
+                  <td class="font-medium text-sm">{{ o._id }}</td>
+                  <td>
+                    <app-status-badge [label]="o.status" [tone]="toneFor(o.status)" />
+                  </td>
+                  <td>
+                    <app-status-badge [label]="o.paymentMethod" tone="neutral" />
+                  </td>
+                  <td class="text-right font-medium">{{ o.pricing.grandTotal | money }}</td>
+                  <td class="text-right">
+                    <div class="action-buttons">
+                      @if (isCancellable(o)) {
+                        <button class="btn btn-sm btn-outline-danger" [disabled]="actionLoading() === o._id" (click)="cancel(o)">
+                           {{ actionLoading() === o._id ? 'Saving...' : 'Cancel' }}
+                        </button>
+                      }
+                      @if (o.status === 'DELIVERY_ASSIGNED') {
+                        <button class="btn btn-sm btn-outline" [disabled]="actionLoading() === o._id" (click)="reassign(o)">
+                           {{ actionLoading() === o._id ? 'Saving...' : 'Reassign Delivery' }}
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5" class="text-center py-8 text-secondary">
+                    No orders found matching the criteria.
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        
+        @if (total() > 0) {
+          <div class="pagination-summary">
+            <span class="text-secondary text-sm">Total orders: {{ total() }}</span>
+          </div>
+        }
       }
-    </section>
+    </div>
   `,
   styles: [
     `
       .filters {
-        margin-bottom: 1rem;
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
       }
-      table {
-        width: 100%;
-        border-collapse: collapse;
+      .search-field {
+        min-width: 200px;
+        max-width: 300px;
       }
-      th,
-      td {
-        text-align: left;
-        padding: 0.5rem;
-        border-bottom: 1px solid #eee;
+      .table-container {
+        overflow-x: auto;
+        background: #fff;
+        border: 1px solid var(--border, #e5e5e5);
+        border-radius: var(--r-md, 8px);
       }
-      button {
-        margin-right: 0.25rem;
+      .mb-4 { margin-bottom: 1.5rem; }
+      .text-xl { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.25rem 0; }
+      .text-sm { font-size: 0.875rem; }
+      .text-secondary { color: var(--text-secondary, #666); }
+      .font-medium { font-weight: 500; }
+      .text-right { text-align: right; }
+      .text-center { text-align: center; }
+      .py-8 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+      
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+      }
+      
+      /* Skeleton Table Styles */
+      .skeleton-table {
+        background: #fff;
+        border: 1px solid var(--border, #e5e5e5);
+        border-radius: var(--r-md, 8px);
+        overflow: hidden;
+      }
+      .skeleton-row {
+        display: flex;
+        gap: 1rem;
+        padding: 1rem;
+        border-bottom: 1px solid var(--border, #e5e5e5);
+        align-items: center;
+      }
+      .skeleton-row:last-child {
+        border-bottom: none;
+      }
+      .pagination-summary {
+        margin-top: 1rem;
+        text-align: right;
       }
     `,
   ],
@@ -83,8 +172,10 @@ export class AdminOrdersComponent implements OnInit {
   status = '';
 
   readonly loading = signal(true);
+  readonly actionLoading = signal<string | null>(null);
   readonly orders = signal<AdminOrder[]>([]);
   readonly total = signal(0);
+  readonly toneFor = toneForStatus;
 
   ngOnInit(): void {
     void this.load();
@@ -107,12 +198,31 @@ export class AdminOrdersComponent implements OnInit {
 
   async cancel(o: AdminOrder): Promise<void> {
     const reason = window.prompt('Cancellation reason?') || 'Cancelled by admin';
-    await this.ordersService.cancel(o._id, reason);
-    await this.load();
+    if (!reason) return;
+    if (!window.confirm(`Are you sure you want to cancel order ${o._id}?`)) {
+      return;
+    }
+    
+    this.actionLoading.set(o._id);
+    try {
+      await this.ordersService.cancel(o._id, reason);
+      await this.load();
+    } finally {
+      this.actionLoading.set(null);
+    }
   }
 
   async reassign(o: AdminOrder): Promise<void> {
-    await this.ordersService.reassignDelivery(o._id);
-    await this.load();
+    if (!window.confirm(`Are you sure you want to reassign delivery for order ${o._id}?`)) {
+      return;
+    }
+    
+    this.actionLoading.set(o._id);
+    try {
+      await this.ordersService.reassignDelivery(o._id);
+      await this.load();
+    } finally {
+      this.actionLoading.set(null);
+    }
   }
 }

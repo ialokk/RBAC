@@ -1,72 +1,205 @@
 <section class="delivery-dashboard">
-  <h1>Delivery Dashboard</h1>
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
 
-  <div class="availability-toggle">
-    <span>Status:</span>
-    <button type="button" [class.active]="availability() === 'AVAILABLE'" (click)="changeAvailability('AVAILABLE')">Online</button>
-    <button type="button" [class.active]="availability() === 'BUSY'" (click)="changeAvailability('BUSY')">Busy</button>
-    <button type="button" [class.active]="availability() === 'OFFLINE'" (click)="changeAvailability('OFFLINE')">Offline</button>
+    <div class="status-toggle">
+      <button 
+        type="button" 
+        [class.active-available]="availability() === 'AVAILABLE'" 
+        (click)="changeAvailability('AVAILABLE')"
+        [disabled]="processingAction() === 'availability'">
+        Online
+      </button>
+      <button 
+        type="button" 
+        [class.active-offline]="availability() === 'OFFLINE'" 
+        (click)="changeAvailability('OFFLINE')"
+        [disabled]="processingAction() === 'availability'">
+        Offline
+      </button>
+    </div>
   </div>
 
   @if (loading()) {
-    <p>Loading…</p>
-  } @else if (currentAssignment(); as a) {
-    <section class="current-assignment">
-      <h2>Current Delivery</h2>
-      <p>{{ a.order?.restaurantName }} → {{ a.order?.deliveryAddressSnapshot?.line1 }}</p>
-      <p>{{ a.order?.itemsCount }} item(s) · ₹{{ (a.order?.pricing?.grandTotal ?? 0) / 100 }}</p>
-      <p>Status: <strong>{{ a.status }}</strong></p>
-
-      @if (a.status === 'ACCEPTED') {
-        <a [href]="mapsUrl(a.order?.restaurantAddress?.line1 ?? a.order?.restaurantName ?? '')" target="_blank" rel="noopener">
-          Navigate to restaurant
-        </a>
-        <button type="button" (click)="arrivedAtRestaurant(a)">Arrived at restaurant</button>
-      }
-
-      @if (a.status === 'ARRIVED_AT_RESTAURANT') {
-        <button type="button" (click)="pickedUp(a)">Mark picked up</button>
-      }
-
-      @if (a.status === 'PICKED_UP') {
-        <a [href]="mapsUrl(a.order?.deliveryAddressSnapshot?.line1 ?? '')" target="_blank" rel="noopener">
-          Navigate to customer
-        </a>
-        <button type="button" (click)="arrivedAtCustomer(a)">Arrived at customer</button>
-      }
-
-      @if (a.status === 'ARRIVED_AT_CUSTOMER') {
-        @if (!a.otpVerifiedAt) {
-          <label>
-            Delivery OTP
-            <input type="text" inputmode="numeric" maxlength="4" [(ngModel)]="otpCode" name="otpCode" />
-          </label>
-          <button type="button" (click)="verifyOtp(a)">Verify OTP</button>
-          @if (actionError()) {
-            <p class="error" role="alert">{{ actionError() }}</p>
-          }
-        } @else {
-          <button type="button" (click)="markDelivered(a)">Mark delivered</button>
-        }
-      }
-    </section>
-  } @else if (availability() !== 'AVAILABLE') {
-    <p>Go online to see available deliveries.</p>
+    <div class="dashboard-stats">
+      <div class="skeleton" style="height: 100px; border-radius: var(--r-md)"></div>
+      <div class="skeleton" style="height: 100px; border-radius: var(--r-md)"></div>
+    </div>
+    <div class="skeleton" style="height: 300px; margin-top: var(--s-4); border-radius: var(--r-lg)"></div>
   } @else {
-    <section class="available-assignments">
-      <h2>Available Deliveries</h2>
-      <ul>
-        @for (assignment of availableAssignments(); track assignment.id) {
-          <li>
-            <p>{{ assignment.order?.restaurantName }} → {{ assignment.order?.deliveryAddressSnapshot?.line1 }}</p>
-            <p>{{ assignment.order?.itemsCount }} item(s) · ₹{{ (assignment.order?.pricing?.grandTotal ?? 0) / 100 }}</p>
-            <button type="button" (click)="accept(assignment)">Accept</button>
-            <button type="button" (click)="decline(assignment)">Decline</button>
-          </li>
-        } @empty {
-          <p>No deliveries available right now.</p>
+
+    @if (earnings(); as e) {
+      <div class="dashboard-stats">
+        <app-stat-card 
+          label="Today's Earnings" 
+          icon="dollar-sign"
+          [value]="(e.today.earnings | money) ?? '₹0'">
+        </app-stat-card>
+        <app-stat-card 
+          label="Today's Deliveries" 
+          icon="package"
+          [value]="e.today.deliveries.toString()">
+        </app-stat-card>
+      </div>
+    }
+
+    @if (currentAssignment(); as a) {
+      <section class="active-assignment">
+        <div class="section-header">
+          <h2>Active Delivery</h2>
+          <app-status-badge [label]="statusLabel(a.status)" [tone]="statusTone(a.status)" />
+        </div>
+
+        <div class="active-assignment-card">
+          <div class="card-header">
+            <span class="order-number">Order #{{ a.order?.id?.slice(-6) | uppercase }}</span>
+            <span class="price">{{ a.order?.pricing?.grandTotal | money }}</span>
+          </div>
+
+          <div class="card-body">
+            <div class="location-step">
+              <app-icon name="map-pin" class="step-icon" />
+              <div class="step-details">
+                <div class="title">Pickup</div>
+                <div class="address">
+                  <strong>{{ a.order?.restaurantName }}</strong><br>
+                  {{ a.order?.restaurantAddress?.line1 }}<br>
+                  {{ a.order?.restaurantAddress?.city }}
+                </div>
+                @if (a.status === 'ACCEPTED') {
+                  <a class="btn btn-outline btn-sm" [href]="mapsUrl(a.order?.restaurantAddress?.line1 ?? a.order?.restaurantName ?? '')" target="_blank" rel="noopener">
+                    <app-icon name="navigation" /> Navigate
+                  </a>
+                }
+              </div>
+            </div>
+
+            <div class="location-connector"></div>
+
+            <div class="location-step">
+              <app-icon name="home" class="step-icon" style="color: var(--c-success)" />
+              <div class="step-details">
+                <div class="title">Dropoff</div>
+                <div class="address">
+                  <strong>{{ a.order?.deliveryAddressSnapshot?.label }}</strong><br>
+                  {{ a.order?.deliveryAddressSnapshot?.line1 }}<br>
+                  {{ a.order?.deliveryAddressSnapshot?.city }}
+                </div>
+                @if (a.status === 'PICKED_UP') {
+                  <a class="btn btn-outline btn-sm" [href]="mapsUrl(a.order?.deliveryAddressSnapshot?.line1 ?? '')" target="_blank" rel="noopener">
+                    <app-icon name="navigation" /> Navigate
+                  </a>
+                }
+              </div>
+            </div>
+            
+            <div class="order-meta">
+              <span>{{ a.order?.itemsCount }} item(s)</span>
+              <span>Assigned: {{ a.offeredAt | date:'shortTime' }}</span>
+            </div>
+          </div>
+
+          <div class="card-actions">
+            @if (a.status === 'ACCEPTED') {
+              <button class="btn btn-primary" (click)="arrivedAtRestaurant(a)" [disabled]="!!processingAction()">
+                Arrived at Restaurant
+              </button>
+            }
+            @if (a.status === 'ARRIVED_AT_RESTAURANT') {
+              <button class="btn btn-primary" (click)="pickedUp(a)" [disabled]="!!processingAction()">
+                Confirm Pickup
+              </button>
+            }
+            @if (a.status === 'PICKED_UP') {
+              <button class="btn btn-primary" (click)="arrivedAtCustomer(a)" [disabled]="!!processingAction()">
+                Arrived at Customer
+              </button>
+            }
+            @if (a.status === 'ARRIVED_AT_CUSTOMER') {
+              @if (!a.otpVerifiedAt) {
+                <div class="otp-input-group">
+                  <label for="otp">Enter Delivery OTP from Customer</label>
+                  <div class="otp-row">
+                    <input id="otp" type="text" inputmode="numeric" maxlength="4" [(ngModel)]="otpCode" name="otpCode" placeholder="0000" [disabled]="!!processingAction()" />
+                    <button class="btn btn-primary" (click)="verifyOtp(a)" [disabled]="!!processingAction() || otpCode().length !== 4">Verify</button>
+                  </div>
+                  @if (actionError()) {
+                    <span class="error-text" role="alert">{{ actionError() }}</span>
+                  }
+                </div>
+              } @else {
+                <button class="btn btn-success" (click)="markDelivered(a)" [disabled]="!!processingAction()">
+                  Mark Delivered
+                </button>
+              }
+            }
+          </div>
+        </div>
+      </section>
+    } @else if (availability() === 'AVAILABLE') {
+      
+      <section class="pending-assignments">
+        <div class="section-header">
+          <h2>Pending Deliveries</h2>
+        </div>
+
+        @if (availableAssignments().length > 0) {
+          <div class="assignment-list">
+            @for (assignment of availableAssignments(); track assignment.id) {
+              <div class="assignment-card">
+                <div class="assignment-header">
+                  <strong>Order #{{ assignment.order?.id?.slice(-6) | uppercase }}</strong>
+                  <span class="price">{{ assignment.order?.pricing?.grandTotal | money }}</span>
+                </div>
+                <div class="assignment-route">
+                  <app-icon name="map-pin" [size]="14" />
+                  <span>{{ assignment.order?.restaurantName }} → {{ assignment.order?.deliveryAddressSnapshot?.line1 }}</span>
+                </div>
+                <div class="assignment-actions">
+                  <button class="btn btn-primary" (click)="accept(assignment)" [disabled]="!!processingAction()">Accept</button>
+                  <button class="btn btn-outline" (click)="decline(assignment)" [disabled]="!!processingAction()">Decline</button>
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <app-empty-state 
+            icon="package" 
+            title="Searching for deliveries..." 
+            description="Stay online. New assignments will appear here." 
+          />
         }
-      </ul>
-    </section>
+      </section>
+      
+    } @else {
+      <app-empty-state 
+        icon="moon" 
+        title="You are offline" 
+        description="Go online to start receiving delivery assignments." 
+      />
+    }
+
+    @if (recentHistory().length > 0) {
+      <section class="recent-history">
+        <div class="section-header">
+          <h2>Recent Deliveries</h2>
+          <a routerLink="/delivery/history" class="text-link">View all</a>
+        </div>
+        <div class="history-list">
+          @for (h of recentHistory(); track h.id) {
+            <div class="history-card">
+              <div class="history-info">
+                <span class="history-title">{{ h.order?.restaurantName }}</span>
+                <span class="history-date">Order #{{ h.order?.id?.slice(-6) | uppercase }} • {{ h.deliveredAt | date:'shortTime' }}</span>
+              </div>
+              <div class="history-meta">
+                <app-status-badge [label]="statusLabel(h.status)" [tone]="statusTone(h.status)" size="sm" />
+              </div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
   }
 </section>

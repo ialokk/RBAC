@@ -1,28 +1,61 @@
-@if (loading()) {
-  <p>Loading…</p>
-} @else if (restaurant(); as r) {
-  <section class="restaurant-profile">
+<div class="restaurant-profile stack">
+  <div class="section-head">
     <h1>Restaurant Profile</h1>
+  </div>
 
-    <p>
-      Status: <strong>{{ r.isOpen ? 'Open' : 'Closed' }}</strong>
-      <button type="button" (click)="toggleOpen()">{{ r.isOpen ? 'Close restaurant' : 'Open restaurant' }}</button>
-    </p>
-    <p>★ {{ r.rating.avg }} ({{ r.rating.count }} reviews)</p>
+  @if (loading()) {
+    <div class="skeleton card" style="height: 300px"></div>
+  } @else if (restaurant(); as r) {
+    <div class="card card-pad stack">
+      <div class="row-between">
+        <div class="stack" style="gap: var(--s-1)">
+          <h2 class="text-strong m-0">{{ r.name }}</h2>
+          <div class="row text-sm text-muted">
+            <span class="row" style="gap: 4px"><app-icon name="star" [size]="14" /> {{ r.rating.avg | number:'1.1-1' }} ({{ r.rating.count }} reviews)</span>
+            <span aria-hidden="true">·</span>
+            <span>{{ r.isOpen ? 'Accepting Orders' : 'Not Accepting Orders' }}</span>
+          </div>
+        </div>
+        <button type="button" class="btn" [class.btn-secondary]="r.isOpen" (click)="toggleOpen()">
+          {{ r.isOpen ? 'Stop Orders' : 'Start Accepting Orders' }}
+        </button>
+      </div>
 
-    <form [formGroup]="form" (ngSubmit)="save()">
-      <label>Name <input formControlName="name" /></label>
-      <label>Description <textarea formControlName="description"></textarea></label>
-      <label>Cuisines (comma separated) <input formControlName="cuisines" /></label>
-      <label>Average prep time (minutes) <input type="number" formControlName="avgPrepTimeMinutes" /></label>
+      <div class="divider"></div>
 
-      @if (savedMessage()) {
-        <p class="info">{{ savedMessage() }}</p>
-      }
+      <form [formGroup]="form" (ngSubmit)="save()" class="grid-auto">
+        <label class="field" style="grid-column: 1 / -1;">
+          <span class="label">Restaurant Name</span>
+          <input class="input" formControlName="name" placeholder="Name" />
+        </label>
+        
+        <label class="field" style="grid-column: 1 / -1;">
+          <span class="label">Description</span>
+          <textarea class="textarea" formControlName="description" placeholder="About your restaurant"></textarea>
+        </label>
+        
+        <label class="field">
+          <span class="label">Cuisines (comma separated)</span>
+          <input class="input" formControlName="cuisines" placeholder="e.g. North Indian, Chinese" />
+        </label>
+        
+        <label class="field">
+          <span class="label">Average Prep Time (minutes)</span>
+          <input class="input" type="number" formControlName="avgPrepTimeMinutes" />
+        </label>
 
-      <button type="submit" [disabled]="form.invalid || saving()">
-        {{ saving() ? 'Saving…' : 'Save changes' }}
-      </button>
-    </form>
-  </section>
-}
+        @if (savedMessage()) {
+          <div class="success-message text-sm row" style="grid-column: 1 / -1; gap: var(--s-2);">
+            <app-icon name="check_circle" [size]="16" /> {{ savedMessage() }}
+          </div>
+        }
+
+        <div style="grid-column: 1 / -1; margin-top: var(--s-2);">
+          <button type="submit" class="btn btn-primary" [disabled]="form.invalid || saving()">
+            {{ saving() ? 'Saving…' : 'Save Changes' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

@@ -1,5 +1,9 @@
 @if (loading()) {
-  <app-loading-spinner />
+  <section class="current-order">
+    <div class="skeleton" style="height: 40px; width: 60%; margin-bottom: 24px;"></div>
+    <div class="skeleton" style="height: 150px; width: 100%; margin-bottom: 24px;"></div>
+    <div class="skeleton" style="height: 100px; width: 100%;"></div>
+  </section>
 } @else if (order(); as o) {
   <section class="current-order">
     <h1>Current Order</h1>

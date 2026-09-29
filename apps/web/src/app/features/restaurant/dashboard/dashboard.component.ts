@@ -41,7 +41,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
   readonly summary = signal<DashboardSummary | null>(null);
   readonly restaurant = signal<OwnRestaurant | null>(null);
   readonly pendingOrders = signal<RestaurantOrder[]>([]);
+  readonly recentOrders = signal<RestaurantOrder[]>([]);
   readonly togglingOpen = signal(false);
+  readonly processingAction = signal<string | null>(null);
 
   readonly needsAction = computed(() => this.summary()?.pending ?? 0);
 
@@ -64,14 +66,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
   async load(): Promise<void> {
     this.loadError.set(false);
     try {
-      const [summary, restaurant, pending] = await Promise.all([
+      const [summary, restaurant, pending, recent] = await Promise.all([
         this.ordersService.summary(),
         this.profileService.getOwn(),
         this.ordersService.list('RESTAURANT_PENDING', 1, 5),
+        this.ordersService.list(undefined, 1, 5),
       ]);
       this.summary.set(summary);
       this.restaurant.set(restaurant);
       this.pendingOrders.set(pending.items);
+      this.recentOrders.set(recent.items);
     } catch {
       this.loadError.set(true);
     } finally {
@@ -87,6 +91,30 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.restaurant.set(await this.profileService.setOpenStatus(!restaurant.isOpen));
     } finally {
       this.togglingOpen.set(false);
+    }
+  }
+
+  async acceptOrder(orderId: string): Promise<void> {
+    if (this.processingAction()) return;
+    this.processingAction.set(orderId);
+    try {
+      await this.ordersService.accept(orderId);
+      await this.load();
+    } finally {
+      if (this.processingAction() === orderId) this.processingAction.set(null);
+    }
+  }
+
+  async rejectOrder(orderId: string): Promise<void> {
+    if (this.processingAction()) return;
+    const reason = prompt('Reason for rejection:');
+    if (!reason) return;
+    this.processingAction.set(orderId);
+    try {
+      await this.ordersService.reject(orderId, reason);
+      await this.load();
+    } finally {
+      if (this.processingAction() === orderId) this.processingAction.set(null);
     }
   }
 

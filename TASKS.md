@@ -3,6 +3,7 @@
 > Version 1 technology stack is LOCKED: Angular + Capacitor + Node.js + Express + MongoDB + Socket.IO, with Node.js scheduled jobs (`node-cron`) replacing any queue/cache infrastructure. No NestJS, Redis, BullMQ, Kafka, RabbitMQ, Kubernetes, Elasticsearch/OpenSearch, distributed cache, or microservices in Version 1. See `docs/ARCHITECTURE.md` §7 (Future-Scaling Rule) before introducing any of these.
 
 ## Phase 0 — Architecture & Documentation
+
 - [x] Architecture
 - [x] ERD
 - [x] API contract
@@ -12,6 +13,7 @@
 - [x] Final Version 1 technology stack locked
 
 ## Phase 1 — Bootstrap
+
 - [x] Angular setup
 - [x] Node.js setup
 - [x] Express setup
@@ -25,6 +27,7 @@
 - [x] Shared project structure
 
 ## Phase 2 — Authentication
+
 - [x] Mobile OTP
 - [x] Email OTP
 - [x] JWT
@@ -33,6 +36,7 @@
 - [x] Permission guards
 
 ## Phase 3 — Customer
+
 - [x] Home + location selection
 - [x] Search food/restaurants + categories
 - [x] Restaurant listing/details, menu, food details
@@ -43,12 +47,14 @@
 - [x] Ratings/reviews, profile, notifications
 
 ## Phase 4 — Restaurant
+
 - [x] Onboarding (owner/restaurant/address/documents/bank) + admin approval
 - [x] Dashboard (today/pending/preparing/ready/completed/cancelled/revenue)
 - [x] Menu management (categories, items, add-ons, variations)
 - [x] Order workflow (accept/reject/prep time/ready/complete)
 
 ## Phase 5 — Delivery
+
 - [x] Registration (personal/vehicle/documents/bank) + admin approval
 - [x] Status machine (PENDING/APPROVED/REJECTED/SUSPENDED/AVAILABLE/BUSY/OFFLINE)
 - [x] Assignment accept/decline, navigation, arrived/picked up/OTP/delivered
@@ -56,23 +62,27 @@
 - [x] LocationService abstraction (browser geolocation)
 
 ## Phase 6 — Order Engine
+
 - [x] Backend order state machine enforcement
 - [x] Order creation, snapshotting menu items
 - [x] Assignment engine (delivery partner matching)
 - [x] Order timeout checks (Node.js scheduled jobs, MongoDB-backed)
 
 ## Phase 7 — Payments
+
 - [x] PaymentGateway abstraction (Razorpay/Cashfree)
 - [x] UPI/Card/Netbanking/COD
 - [x] Server-side verification + webhook processing (idempotent)
 - [x] Refunds + reconciliation
 
 ## Phase 8 — Tracking
+
 - [x] Socket.IO server (order + location channels)
 - [x] Delivery partner live location updates
 - [x] Customer live tracking UI + map integration (backend events/authorization shipped in Phase 8; the Angular UI/map wiring itself was completed later, in the Post-Phase-13 Integration pass below — uses Google Maps deep-links, not an embedded Maps SDK)
 
 ## Phase 9 — Admin
+
 - [x] Dashboard (orders/revenue/customers/restaurants/partners/approvals/active deliveries)
 - [x] Users, restaurants, delivery partners management
 - [x] Orders search/filter/cancel/reassign
@@ -82,17 +92,21 @@
 - [x] Reports — backend endpoints (orders/sales/restaurants/delivery-partners/customers) shipped in Phase 9; the Angular admin UI itself was completed later, in the Post-Phase-13 Integration pass below
 
 ## Phase 10 — Notifications
+
 - [x] Push (FCM), SMS, Email providers
 - [x] Event-driven notification triggers via direct service calls + Node.js scheduled jobs
 
 ## Phase 11 — PWA
+
 - [x] Manifest, service worker, app shell caching
 - [x] Update handling, safe caching strategy (no sensitive API caching)
 
 ## Phase 12 — Testing
+
 - [x] Unit/integration/e2e test strategy execution (see docs/TESTING.md — backend Jest+supertest+mongodb-memory-server suite fully executed and passing; frontend Vitest unit tests executed and passing; Playwright e2e specs written, 2/4 files executable — browser binary could not be downloaded in this sandbox, see docs/TESTING.md §4)
 
 ## Phase 13 — Deployment
+
 - [x] Production Docker/Compose, environment/secrets, CI/CD (see docs/DEPLOYMENT.md — production builds run and pass; Docker/Gradle execution itself not runnable in this sandbox, see docs/DEPLOYMENT.md §12)
 
 ## Post-Phase-13 Integration
@@ -113,3 +127,11 @@
 - [x] FCM device-token registration (frontend) — new `core/notifications/push-notifications.service.ts` is the single push abstraction for all four roles; nothing else touches Firebase/Capacitor push or `POST /notifications/device-token`. Registration is driven by an `effect()` on `AuthService.isAuthenticated()` wired in `app.config.ts`, so it runs at most once per signed-in session (never on navigation, never for anonymous visitors) and resets on logout. **Web/PWA**: dynamic `import('firebase/messaging')` (lazy chunk — not in the initial bundle), `isSupported()` guard, prompts only from `Notification.permission === 'default'` (a prior denial is never re-prompted), then `getToken({ vapidKey, serviceWorkerRegistration })` against a dedicated `public/firebase-messaging-sw.js` registered with the public config as query params (so config stays defined once, in `environment*.ts`). **Capacitor/native**: dynamic `import('@capacitor/push-notifications')`, permission check/request, and the `registration` listener — which doubles as the native token-refresh path. Web refresh is covered by re-running `getToken()` each session; the backend `registerDeviceToken` already upserts by `fcmToken`, so refreshed tokens and user reassignment need no new endpoint. Every failure path (missing config, denied permission, unsupported browser, token failure, network failure) is swallowed so login/app usage is unaffected. Only public Firebase client config is exposed — the Admin service account stays server-side. Verified via `npm run build` + `npm run test` (9 suites / 35 backend, 3 files / 8 frontend passing).
 - [ ] End-to-end manual verification — still not performed against a real running stack. Re-checked this pass: this machine has Node v22.23.2 but **no `docker`, no `docker-compose`, no `mongod`, no `mongosh`**, so the API/web/Mongo stack cannot be started and `npm run seed:dev` cannot be executed here. The delivery-failure scenario, four-role journeys and transition rules are instead covered by the backend integration suite, which drives the real Express app over real HTTP (supertest) against a real MongoDB (ephemeral in-process per test file).
 - [ ] Production readiness verification — depends on the still-open end-to-end manual verification above.
+
+## Phase G — Final UX Hardening Pass
+
+- [x] Create shared `BackButtonComponent` based on existing design system.
+- [x] Implement natural back navigation in detail screens (`restaurant-detail`, `food-detail`, `cart`, `checkout`, `order-details`).
+- [x] Audit all API-driven screens and replace global `app-loading-spinner` with component-specific `.skeleton` shimmers.
+- [x] Ensure subtle and fast UX with consistent loading/error state changes using the `.skeleton` animation.
+- [x] Verify UI micro-animations and transition styling (`_components.scss`).

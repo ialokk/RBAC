@@ -24,7 +24,7 @@ const TERMINAL_STATUSES = new Set([
 @Component({
   selector: 'app-current-order',
   standalone: true,
-  imports: [CommonModule, RouterLink, LoadingSpinnerComponent],
+  imports: [CommonModule, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './current-order.component.html',
 })

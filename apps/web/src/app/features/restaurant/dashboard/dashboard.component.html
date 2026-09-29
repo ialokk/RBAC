@@ -71,6 +71,42 @@
       } @else {
         <ul class="orders">
           @for (order of pendingOrders(); track order._id) {
+            <li class="order order--actionable">
+              <div class="order__main">
+                <div class="order__top">
+                  <app-status-badge [label]="statusLabel(order.status)" [tone]="statusTone(order.status)" />
+                  <span class="text-xs text-muted">{{ order.createdAt | date: 'shortTime' }}</span>
+                </div>
+                <strong class="order__items">
+                  Order #{{ order._id | slice:-6 | uppercase }} · {{ itemCount(order) }} item{{ itemCount(order) === 1 ? '' : 's' }} · {{ order.pricing.grandTotal | money }}
+                </strong>
+                <span class="text-xs text-muted">{{ order.deliveryAddressSnapshot.city }} · {{ order.items[0]?.nameSnapshot }} @if (order.items.length > 1) { +{{ order.items.length - 1 }} more }</span>
+              </div>
+              <div class="order__actions">
+                <button type="button" class="btn btn-secondary btn-sm" (click)="rejectOrder(order._id)" [disabled]="processingAction() === order._id">Reject</button>
+                <button type="button" class="btn btn-sm" (click)="acceptOrder(order._id)" [disabled]="processingAction() === order._id">Accept</button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <section class="rd__panel card" aria-labelledby="recent-h">
+      <div class="rd__panel-head">
+        <h2 id="recent-h">Recent orders</h2>
+        <a routerLink="/restaurant/orders/history" class="text-sm">View all</a>
+      </div>
+
+      @if (!recentOrders().length) {
+        <app-empty-state
+          icon="clock"
+          title="No recent orders"
+          message="Orders will appear here once they're placed."
+        />
+      } @else {
+        <ul class="orders">
+          @for (order of recentOrders(); track order._id) {
             <li class="order">
               <div class="order__main">
                 <div class="order__top">
@@ -78,13 +114,9 @@
                   <span class="text-xs text-muted">{{ order.createdAt | date: 'shortTime' }}</span>
                 </div>
                 <strong class="order__items">
-                  {{ itemCount(order) }} item{{ itemCount(order) === 1 ? '' : 's' }} ·
-                  {{ order.items[0]?.nameSnapshot }}
-                  @if (order.items.length > 1) {
-                    <span class="text-muted"> +{{ order.items.length - 1 }} more</span>
-                  }
+                  Order #{{ order._id | slice:-6 | uppercase }} · {{ itemCount(order) }} item{{ itemCount(order) === 1 ? '' : 's' }}
                 </strong>
-                <span class="text-xs text-muted">{{ order.deliveryAddressSnapshot.city }} · {{ order.paymentMethod }}</span>
+                <span class="text-xs text-muted">{{ order.deliveryAddressSnapshot.city }}</span>
               </div>
               <span class="order__total">{{ order.pricing.grandTotal | money }}</span>
             </li>

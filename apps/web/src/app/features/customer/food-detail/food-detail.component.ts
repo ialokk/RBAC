@@ -7,10 +7,12 @@ import { CartStateService } from '../data/cart-state.service';
 import { MenuService } from '../data/menu.service';
 import type { FoodAddonGroup, MenuItem } from '../data/models';
 
+import { BackButtonComponent } from '../../../shared/ui/back-button/back-button.component';
+
 @Component({
   selector: 'app-food-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, LoadingSpinnerComponent],
+  imports: [CommonModule, FormsModule, BackButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './food-detail.component.html',
 })

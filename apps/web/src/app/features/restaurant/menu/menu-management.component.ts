@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { IconComponent } from '../../../shared/ui/icon/icon.component';
+import { MoneyPipe } from '../../../shared/ui/money.pipe';
 import { RestaurantMenuService } from '../data/restaurant-menu.service';
 import { RestaurantProfileService } from '../data/restaurant-profile.service';
 import type { FoodAddonGroup, MenuCategory, MenuItem } from '../data/models';
@@ -8,9 +10,10 @@ import type { FoodAddonGroup, MenuCategory, MenuItem } from '../data/models';
 @Component({
   selector: 'app-menu-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, IconComponent, MoneyPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './menu-management.component.html',
+  styleUrl: './menu-management.component.scss',
 })
 export class MenuManagementComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
